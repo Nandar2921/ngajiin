@@ -28,6 +28,12 @@ export default function AdminPage() {
       icon: '📚',
     },
     {
+      title: '📜 Kelola Hadits',
+      description: 'Tambah, edit, atau hapus hadits',
+      link: '/admin/hadith',
+      icon: '📜',
+    },
+    {
       title: '👥 Kelola Users',
       description: 'Lihat dan manage user',
       link: '/admin/users',

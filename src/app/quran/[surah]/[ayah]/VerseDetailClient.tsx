@@ -9,6 +9,8 @@ import SkeletonDetail from '@/components/ui/skeleton/SkeletonDetail';
 import ErrorAlert from '@/components/ui/ErrorAlert';
 import BookmarkButton from '@/components/BookmarkButton';
 import AudioPlayer from '@/components/AudioPlayer';
+import ExportPDF from '@/components/ExportPDF';
+import AudioPlayerSurah from '@/components/AudioPlayerSurah';
 
 interface Verse {
   id: number;
@@ -112,14 +114,22 @@ export default function VerseDetailClient({ surah, ayah }: Props) {
   const showBasmalah = isFirstAyah && verse.surah !== 9;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Navigation with Font Size Controls */}
+    <div id="verse-content" className="max-w-4xl mx-auto p-6">
+      {/* Navigation with Font Size Controls & Export PDF */}
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <Link href="/search" className="text-emerald-600 dark:text-emerald-400 hover:underline">
           ← Kembali
         </Link>
         
         <div className="flex items-center gap-4">
+          {/* Export PDF Button */}
+          {verse && (
+            <ExportPDF 
+              elementId="verse-content" 
+              fileName={`QS_${verse.surah}_${verse.ayah}`} 
+            />
+          )}
+          
           {/* Font Size Controls */}
           {mounted && (
             <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
@@ -179,19 +189,28 @@ export default function VerseDetailClient({ surah, ayah }: Props) {
       </div>
       
       {/* Header Surah untuk ayat pertama */}
-      {isFirstAyah && surahInfo && (
-        <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-5 mb-6 text-center">
-          <div className="text-5xl font-arabic text-emerald-700 dark:text-emerald-400 mb-2">
-            {surahInfo.arabic}
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-            {surahInfo.displayName}
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Surah ke-{surahInfo.number} | {surahInfo.meaning}
-          </p>
-        </div>
-      )}
+   {isFirstAyah && surahInfo && (
+  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 rounded-xl p-5 mb-6 text-center">
+    <div className="text-5xl font-arabic text-emerald-700 dark:text-emerald-400 mb-2">
+      {surahInfo.arabic}
+    </div>
+    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+      {surahInfo.displayName}
+    </h1>
+    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      Surah ke-{surahInfo.number} | {surahInfo.meaning}
+    </p>
+    
+    {/* TAMBAHKAN PLAY FULL SURAH - HANYA DI AYAT 1 */}
+    <div className="mt-4 flex justify-center">
+      <AudioPlayerSurah 
+        surah={verse.surah} 
+        surahName={surahInfo.latin} 
+        totalAyah={verse.surah === 1 ? 7 : verse.surah === 2 ? 286 : 100} 
+      />
+    </div>
+  </div>
+)}
       
       {/* Basmalah (hanya untuk ayat 1, kecuali surah 9) */}
       {showBasmalah && (

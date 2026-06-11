@@ -49,6 +49,13 @@ export default function Navbar() {
             >
               Surah
             </Link>
+            {/* TAMBAHKAN INI - LINK HADITS */}
+            <Link 
+              href="/hadith" 
+              className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              Hadits
+            </Link>
             
             {/* Dark Mode Toggle */}
             {mounted && (
@@ -157,6 +164,14 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
           >
             Surah
+          </Link>
+          {/* TAMBAHKAN INI - LINK HADITS MOBILE */}
+          <Link
+            href="/hadith"
+            className="block text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-2 transition"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            Hadits
           </Link>
           
           {session ? (

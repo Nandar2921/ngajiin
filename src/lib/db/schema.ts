@@ -1,16 +1,18 @@
 import { pgTable, serial, integer, text, varchar, timestamp, unique } from 'drizzle-orm/pg-core';
-export const searchHistory = pgTable('search_history', {
-  id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  keyword: varchar('keyword', { length: 255 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
-});
+
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   password: text('password').notNull(),
   role: varchar('role', { length: 20 }).notNull().default('user'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const searchHistory = pgTable('search_history', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  keyword: varchar('keyword', { length: 255 }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
@@ -33,7 +35,6 @@ export const tafsir = pgTable('tafsir', {
   createdAt: timestamp('created_at').defaultNow(),
 });
 
-// TAMBAHKAN TABEL BOOKMARKS
 export const bookmarks = pgTable('bookmarks', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -42,3 +43,24 @@ export const bookmarks = pgTable('bookmarks', {
 }, (table) => ({
   uniqueUserVerse: unique().on(table.userId, table.verseId),
 }));
+
+export const hadithBooks = pgTable('hadith_books', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  nameArabic: varchar('name_arabic', { length: 100 }),
+  nameIndonesian: varchar('name_indonesian', { length: 100 }),
+  totalHadith: integer('total_hadith'),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const hadiths = pgTable('hadiths', {
+  id: serial('id').primaryKey(),
+  bookId: integer('book_id').notNull().references(() => hadithBooks.id, { onDelete: 'cascade' }),
+  number: integer('number').notNull(),
+  arabic: text('arabic').notNull(),
+  translation: text('translation').notNull(),
+  grade: varchar('grade', { length: 50 }),
+  narrator: varchar('narrator', { length: 255 }),
+  reference: varchar('reference', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});

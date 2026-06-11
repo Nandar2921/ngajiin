@@ -1,12 +1,34 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { getServerSession } from 'next-auth';
+import { Pool } from 'pg';
+import { authOptions } from '@/lib/auth.config';
 
+const pool = new Pool({
+  host: 'localhost',
+  port: 5432,
+  user: 'postgres',
+  password: 'sikaji29',
+  database: 'sikaji',
+});
+
+// GET: Ambil semua users
 export async function GET() {
   try {
-    const allUsers = await db.select().from(users);
-    return NextResponse.json(allUsers);
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const result = await pool.query(`
+      SELECT id, name, email, role, created_at as "createdAt"
+      FROM users 
+      ORDER BY id
+    `);
+    
+    return NextResponse.json(result.rows);
   } catch (error) {
-    return NextResponse.json([]);
+    console.error('Error fetching users:', error);
+    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 });
   }
 }

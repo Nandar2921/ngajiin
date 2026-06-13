@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Hadith {
   id: number;
@@ -11,126 +12,264 @@ interface Hadith {
   narrator: string;
   grade: string;
   book_name: string;
+  book_id: number;
 }
 
-export default function HadithListPage() {
+interface Book {
+  id: number;
+  name: string;
+  name_indonesian: string;
+  slug: string;
+}
+
+export default function HadithPage() {
   const [hadiths, setHadiths] = useState<Hadith[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [selectedBook, setSelectedBook] = useState('');
-  const [books, setBooks] = useState<{id: number, name_indonesian: string}[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [books, setBooks] = useState<Book[]>([]);
+  const limit = 20;
 
+  // Fetch books
   useEffect(() => {
-    // Fetch books
     fetch('/api/hadith/books')
       .then(res => res.json())
       .then(data => {
-        if (Array.isArray(data)) setBooks(data);
-      })
-      .catch(console.error);
-
-    // Fetch hadiths
-    fetch('/api/hadith')
-      .then(res => res.json())
-      .then(data => {
         if (Array.isArray(data)) {
-          setHadiths(data);
-        } else {
-          setHadiths([]);
+          setBooks(data);
         }
-        setLoading(false);
       })
-      .catch(err => {
-        console.error('Error:', err);
-        setHadiths([]);
-        setLoading(false);
-      });
+      .catch(err => console.error('Error fetching books:', err));
   }, []);
 
-  const filteredHadiths = hadiths.filter(h => {
-    if (!h) return false;
-    const matchSearch = search === '' || 
-      (h.translation && h.translation.toLowerCase().includes(search.toLowerCase())) ||
-      (h.arabic && h.arabic.toLowerCase().includes(search.toLowerCase()));
-    const matchBook = selectedBook === '' || h.book_name === selectedBook;
-    return matchSearch && matchBook;
-  });
+  // Fetch hadiths
+  const fetchHadiths = async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (selectedBook) params.set('bookId', selectedBook);
+    params.set('page', currentPage.toString());
+    params.set('limit', limit.toString());
+    
+    try {
+      const res = await fetch(`/api/hadith?${params.toString()}`);
+      const data = await res.json();
+      
+      if (Array.isArray(data)) {
+        setHadiths(data);
+        setTotal(data.length);
+        setTotalPages(Math.ceil(data.length / limit));
+      } else if (data.data && Array.isArray(data.data)) {
+        setHadiths(data.data);
+        setTotal(data.pagination?.total || data.data.length);
+        setTotalPages(data.pagination?.totalPages || 1);
+      } else {
+        setHadiths([]);
+        setTotal(0);
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setHadiths([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (loading) {
+  useEffect(() => {
+    fetchHadiths();
+  }, [search, selectedBook, currentPage]);
+
+  const handleSearch = () => {
+    setSearch(inputValue);
+    setCurrentPage(1);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleReset = () => {
+    setInputValue('');
+    setSearch('');
+    setSelectedBook('');
+    setCurrentPage(1);
+  };
+
+  const handleBookFilter = (bookId: string) => {
+    setSelectedBook(bookId);
+    setCurrentPage(1);
+  };
+
+  if (loading && currentPage === 1) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="text-center mt-10">Loading...</div>
+      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-gray-500">Memuat hadits...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-2">📜 Kumpulan Hadits</h1>
-      <p className="text-gray-500 mb-6">Hadits pilihan dari kitab Arbain Nawawi</p>
-      
-      {/* Filter Section */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Cari hadits..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        />
+    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-500 mb-2">
+            📜 Kumpulan Hadits
+          </h1>
+          <p className="text-gray-500">
+            {total.toLocaleString()} hadits dari berbagai kitab
+          </p>
+        </div>
         
-        <select
-          value={selectedBook}
-          onChange={(e) => setSelectedBook(e.target.value)}
-          className="p-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500"
-        >
-          <option value="">Semua Kitab</option>
-          {books.map((book) => (
-            <option key={book.id} value={book.name_indonesian}>
-              {book.name_indonesian}
-            </option>
-          ))}
-        </select>
-      </div>
-      
-      {/* Hadith List */}
-      {filteredHadiths.length === 0 ? (
-        <div className="text-center mt-10">
-          <p className="text-gray-500">Tidak ditemukan hadits</p>
-          {search && <p className="text-sm mt-2">Coba kata kunci lain</p>}
+        {/* Filter Section */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Cari hadits..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white placeholder:text-gray-600"
+              />
+            </div>
+            <button
+              onClick={handleSearch}
+              className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition font-medium"
+            >
+              Cari
+            </button>
+          </div>
+          
+          <select
+            value={selectedBook}
+            onChange={(e) => handleBookFilter(e.target.value)}
+            className="px-4 py-2.5 bg-gray-900/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white"
+          >
+            <option value="">📚 Semua Kitab</option>
+            {books.map((book) => (
+              <option key={book.id} value={book.id}>
+                {book.name_indonesian || book.name}
+              </option>
+            ))}
+          </select>
+          
+          {(search || selectedBook) && (
+            <button
+              onClick={handleReset}
+              className="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredHadiths.map((hadith) => (
-            <Link href={`/hadith/${hadith.id}`} key={hadith.id}>
-              <div className="p-5 border rounded-xl hover:shadow-lg transition cursor-pointer bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <span className="text-emerald-600 font-semibold">Hadits ke-{hadith.number}</span>
-                    <span className="ml-2 text-xs text-gray-400">{hadith.book_name}</span>
+        
+        {/* Info Filter */}
+        {selectedBook && (
+          <div className="bg-emerald-950/30 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl mb-4 text-sm">
+            📖 Menampilkan hadits dari kitab: {books.find(b => b.id.toString() === selectedBook)?.name_indonesian || selectedBook}
+          </div>
+        )}
+        
+        {/* Pagination Top */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mb-6">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-sm text-gray-400">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+        
+        {/* Hadith List */}
+        {hadiths.length === 0 ? (
+          <div className="text-center py-16">
+            <div className="text-5xl mb-4">📭</div>
+            <p className="text-gray-500">Tidak ada hadits ditemukan</p>
+            {(search || selectedBook) && (
+              <button
+                onClick={handleReset}
+                className="mt-4 text-emerald-500 hover:text-emerald-400"
+              >
+                Reset filter →
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {hadiths.map((hadith) => (
+              <Link href={`/hadith/${hadith.id}`} key={hadith.id}>
+                <div className="group block bg-gray-900/30 border border-white/5 rounded-xl p-5 hover:bg-gray-900/50 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer">
+                  <div className="flex justify-between items-start mb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-emerald-500 font-semibold">Hadits ke-{hadith.number}</span>
+                      <span className="text-xs text-gray-500">{hadith.book_name}</span>
+                    </div>
+                    <span className="text-xs px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
+                      {hadith.grade || 'Shahih'}
+                    </span>
                   </div>
-                  <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded">
-                    {hadith.grade || 'Shahih'}
-                  </span>
+                  <div className="text-right text-xl font-arabic mb-3 leading-relaxed text-gray-200">
+                    {hadith.arabic?.substring(0, 150)}...
+                  </div>
+                  <div className="text-gray-400 leading-relaxed">
+                    {hadith.translation?.substring(0, 200)}...
+                  </div>
+                  <div className="text-xs text-gray-600 mt-3">
+                    Perawi: {hadith.narrator || '-'}
+                  </div>
                 </div>
-                <div className="text-right text-xl font-arabic mb-3 leading-relaxed">
-                  {hadith.arabic?.substring(0, 150)}...
-                </div>
-                <div className="text-gray-600 dark:text-gray-300">
-                  {hadith.translation?.substring(0, 200)}...
-                </div>
-                <div className="text-xs text-gray-400 mt-2">
-                  Perawi: {hadith.narrator || '-'}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-      
-      {/* Stats */}
-      <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-center text-sm text-gray-500">
-        Total {filteredHadiths.length} hadits dari {hadiths.length} hadits
+              </Link>
+            ))}
+          </div>
+        )}
+        
+        {/* Pagination Bottom */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 mt-6">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <span className="text-sm text-gray-400">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

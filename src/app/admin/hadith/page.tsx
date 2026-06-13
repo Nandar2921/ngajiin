@@ -20,7 +20,7 @@ interface Book {
   id: number;
   name: string;
   name_indonesian: string;
-  total_hadith: number;
+  total_hadith: number | null;
 }
 
 export default function AdminHadithPage() {
@@ -187,6 +187,29 @@ export default function AdminHadithPage() {
   if (status === 'loading' || loading) return <div className="p-6">Loading...</div>;
   if (session?.user?.role !== 'admin') return <div className="p-6 text-red-600">Access Denied</div>;
 
+  const totalHadits = hadiths.length;
+
+  // Data kitab dengan nama Arab yang benar
+  const arabicBookNames: Record<string, string> = {
+    'Shahih Bukhari': 'صحيح البخاري',
+    'Shahih Muslim': 'صحيح مسلم',
+    'Sunan Abu Daud': 'سنن أبي داود',
+    'Sunan Tirmidzi': 'جامع الترمذي',
+    'Sunan Nasai': 'سنن النسائي',
+    'Sunan Ibnu Majah': 'سنن ابن ماجه',
+    'Hadits Arbain An-Nawawi': 'الأربعون النووية',
+  };
+
+  const sourceData = [
+    { name: 'Shahih Bukhari', total: 7563 },
+    { name: 'Shahih Muslim', total: 9200 },
+    { name: 'Sunan Abu Daud', total: 5274 },
+    { name: 'Sunan Tirmidzi', total: 3956 },
+    { name: 'Sunan Nasai', total: 5761 },
+    { name: 'Sunan Ibnu Majah', total: 4341 },
+    { name: 'Hadits Arbain An-Nawawi', total: 42 },
+  ];
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -196,13 +219,12 @@ export default function AdminHadithPage() {
         </Link>
       </div>
 
-      {/* Tab Navigation */}
       <div className="flex gap-2 border-b mb-6 flex-wrap">
         <button
           onClick={() => { setActiveTab('list'); cancelEdit(); }}
           className={`px-4 py-2 ${activeTab === 'list' ? 'border-b-2 border-emerald-600 text-emerald-600' : 'text-gray-500'}`}
         >
-          📋 Daftar Hadits ({hadiths.length})
+          📋 Daftar Hadits ({totalHadits})
         </button>
         <button
           onClick={() => { setActiveTab('add'); setEditingId(null); }}
@@ -230,7 +252,6 @@ export default function AdminHadithPage() {
         </div>
       )}
 
-      {/* Tab List Hadits */}
       {activeTab === 'list' && (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white dark:bg-gray-800 border">
@@ -262,107 +283,55 @@ export default function AdminHadithPage() {
                     </span>
                   </td>
                   <td className="px-4 py-2 border text-center whitespace-nowrap">
-                    <button
-                      onClick={() => handleEdit(hadith)}
-                      className="text-blue-600 hover:underline mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(hadith.id, hadith.number)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Hapus
-                    </button>
+                    <button onClick={() => handleEdit(hadith)} className="text-blue-600 hover:underline mr-3">Edit</button>
+                    <button onClick={() => handleDelete(hadith.id, hadith.number)} className="text-red-600 hover:underline">Hapus</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {hadiths.length === 0 && (
-            <div className="text-center py-8 text-gray-500">Belum ada data hadits</div>
-          )}
+          {hadiths.length === 0 && <div className="text-center py-8 text-gray-500">Belum ada data hadits</div>}
         </div>
       )}
 
-      {/* Tab Tambah/Edit Hadits */}
       {activeTab === 'add' && (
         <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
-          {editingId && (
-            <div className="bg-blue-50 p-3 rounded-lg mb-4">
-              ✏️ Sedang mengedit hadits ID: {editingId}
-            </div>
-          )}
+          {editingId && <div className="bg-blue-50 p-3 rounded-lg mb-4">✏️ Sedang mengedit hadits ID: {editingId}</div>}
           
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Kitab</label>
-              <select
-                value={formData.bookId}
-                onChange={(e) => setFormData({ ...formData, bookId: e.target.value })}
-                required
-                className="w-full p-2 border rounded dark:bg-gray-800"
-              >
+              <select value={formData.bookId} onChange={(e) => setFormData({ ...formData, bookId: e.target.value })} required className="w-full p-2 border rounded dark:bg-gray-800">
                 <option value="">Pilih Kitab</option>
                 {books.map((book) => (
-                  <option key={book.id} value={book.id}>
-                    {book.name_indonesian}
-                  </option>
+                  <option key={book.id} value={book.id}>{book.name_indonesian}</option>
                 ))}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Nomor Hadits</label>
-              <input
-                type="number"
-                value={formData.number}
-                onChange={(e) => setFormData({ ...formData, number: e.target.value })}
-                required
-                className="w-full p-2 border rounded dark:bg-gray-800"
-              />
+              <input type="number" value={formData.number} onChange={(e) => setFormData({ ...formData, number: e.target.value })} required className="w-full p-2 border rounded dark:bg-gray-800" />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Teks Arab</label>
-            <textarea
-              value={formData.arabic}
-              onChange={(e) => setFormData({ ...formData, arabic: e.target.value })}
-              required
-              rows={3}
-              className="w-full p-2 border rounded font-arabic dark:bg-gray-800"
-              dir="rtl"
-            />
+            <textarea value={formData.arabic} onChange={(e) => setFormData({ ...formData, arabic: e.target.value })} required rows={3} className="w-full p-2 border rounded font-arabic dark:bg-gray-800" dir="rtl" />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Terjemahan</label>
-            <textarea
-              value={formData.translation}
-              onChange={(e) => setFormData({ ...formData, translation: e.target.value })}
-              required
-              rows={3}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            />
+            <textarea value={formData.translation} onChange={(e) => setFormData({ ...formData, translation: e.target.value })} required rows={3} className="w-full p-2 border rounded dark:bg-gray-800" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Perawi</label>
-              <input
-                type="text"
-                value={formData.narrator}
-                onChange={(e) => setFormData({ ...formData, narrator: e.target.value })}
-                className="w-full p-2 border rounded dark:bg-gray-800"
-              />
+              <input type="text" value={formData.narrator} onChange={(e) => setFormData({ ...formData, narrator: e.target.value })} className="w-full p-2 border rounded dark:bg-gray-800" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Status</label>
-              <select
-                value={formData.grade}
-                onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
-                className="w-full p-2 border rounded dark:bg-gray-800"
-              >
+              <select value={formData.grade} onChange={(e) => setFormData({ ...formData, grade: e.target.value })} className="w-full p-2 border rounded dark:bg-gray-800">
                 <option value="Shahih">Shahih</option>
                 <option value="Hasan">Hasan</option>
                 <option value="Dhaif">Dhaif</option>
@@ -372,36 +341,18 @@ export default function AdminHadithPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Referensi</label>
-            <input
-              type="text"
-              value={formData.reference}
-              onChange={(e) => setFormData({ ...formData, reference: e.target.value })}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            />
+            <input type="text" value={formData.reference} onChange={(e) => setFormData({ ...formData, reference: e.target.value })} className="w-full p-2 border rounded dark:bg-gray-800" />
           </div>
 
           <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={uploading}
-              className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 disabled:opacity-50"
-            >
+            <button type="submit" disabled={uploading} className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 disabled:opacity-50">
               {uploading ? 'Menyimpan...' : (editingId ? 'Update Hadits' : 'Simpan Hadits')}
             </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={cancelEdit}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Batal
-              </button>
-            )}
+            {editingId && <button type="button" onClick={cancelEdit} className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Batal</button>}
           </div>
         </form>
       )}
 
-      {/* Tab Import JSON */}
       {activeTab === 'import' && (
         <div className="space-y-4 max-w-2xl">
           <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg">
@@ -422,46 +373,30 @@ export default function AdminHadithPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">Pilih Kitab</label>
-            <select
-              value={formData.bookId}
-              onChange={(e) => setFormData({ ...formData, bookId: e.target.value })}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            >
+            <select value={formData.bookId} onChange={(e) => setFormData({ ...formData, bookId: e.target.value })} className="w-full p-2 border rounded dark:bg-gray-800">
               <option value="">Pilih Kitab</option>
               {books.map((book) => (
-                <option key={book.id} value={book.id}>
-                  {book.name_indonesian}
-                </option>
+                <option key={book.id} value={book.id}>{book.name_indonesian}</option>
               ))}
             </select>
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Upload File JSON</label>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleImportJSON}
-              disabled={uploading}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            />
+            <input type="file" accept=".json" onChange={handleImportJSON} disabled={uploading} className="w-full p-2 border rounded dark:bg-gray-800" />
           </div>
         </div>
       )}
 
-      {/* Tab Kitab Hadits */}
+      {/* TAB KITAB HADITS - DIPERBAIKI dengan safe handling */}
       {activeTab === 'books' && (
         <div>
           <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
             <h3 className="font-semibold mb-2">📖 Sumber Data Hadits:</h3>
             <ul className="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
-              <li>Shahih Bukhari - 7.563 hadits</li>
-              <li>Shahih Muslim - 9.200 hadits</li>
-              <li>Sunan Abu Daud - 5.274 hadits</li>
-              <li>Sunan Tirmidzi - 3.956 hadits</li>
-              <li>Sunan Nasai - 5.761 hadits</li>
-              <li>Sunan Ibnu Majah - 4.341 hadits</li>
-              <li>Hadits Arbain An-Nawawi - 42 hadits</li>
+              {sourceData.map((source, idx) => (
+                <li key={idx}>{source.name} - {source.total.toLocaleString()} hadits</li>
+              ))}
             </ul>
           </div>
 
@@ -480,8 +415,13 @@ export default function AdminHadithPage() {
                   <tr key={book.id}>
                     <td className="px-4 py-2 border text-center">{book.id}</td>
                     <td className="px-4 py-2 border">{book.name_indonesian}</td>
-                    <td className="px-4 py-2 border font-arabic">{book.name}</td>
-                    <td className="px-4 py-2 border text-center">{book.total_hadith}</td>
+                    <td className="px-4 py-2 border font-arabic text-right" dir="rtl">
+                      {arabicBookNames[book.name_indonesian] || book.name || book.name_indonesian}
+                    </td>
+                    <td className="px-4 py-2 border text-center">
+                      {/* FIX: handle null/undefined dengan fallback ke 0 */}
+                      {(book.total_hadith ?? 0).toLocaleString()}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1,66 +1,91 @@
+import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
-import { z } from 'zod';
 
-export const authOptions = {
+const pool = new Pool({
+  host: 'localhost',
+  port: 5433,  // ← pakai port pgvector (Docker)
+  user: 'postgres',
+  password: 'sikaji29',
+  database: 'sikaji',
+});
+
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'credentials',
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: 'Email', type: 'email', placeholder: 'email@example.com' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
-        if (!credentials) return null;
-        
-        const parsed = z.object({
-          email: z.string().email(),
-          password: z.string().min(6),
-        }).safeParse(credentials);
-        
-        if (!parsed.success) return null;
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
 
-        const { email, password } = parsed.data;
-        const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
-        if (!user.length) return null;
-
-        const isValid = await bcrypt.compare(password, user[0].password);
-        if (!isValid) return null;
-
-        return { 
-          id: user[0].id.toString(), 
-          email: user[0].email, 
-          name: user[0].name, 
-          role: user[0].role 
-        };
-      },
-    }),
+        try {
+          // Cari user berdasarkan email
+          const result = await pool.query(
+            'SELECT id, name, email, password, role FROM users WHERE email = $1',
+            [credentials.email]
+          );
+          
+          const user = result.rows[0];
+          
+          if (!user) {
+            console.log('User not found:', credentials.email);
+            return null;
+          }
+          
+          // Verifikasi password
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+          
+          if (!isValid) {
+            console.log('Invalid password for:', credentials.email);
+            return null;
+          }
+          
+          // Return user object (tanpa password)
+          return {
+            id: user.id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error('Auth error:', error);
+          return null;
+        }
+      }
+    })
   ],
   callbacks: {
-    async jwt({ token, user }: any) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.name = user.name;
       }
       return token;
     },
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
+        session.user.name = token.name as string;
       }
       return session;
-    },
+    }
   },
-  pages: { 
-    signIn: '/login', 
-    newUser: '/register' 
+  pages: {
+    signIn: '/login',
+    error: '/login',
   },
-  session: { 
-    strategy: 'jwt' as const,
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 hari
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || 'sikaji-secret-key-change-in-production',
+  debug: process.env.NODE_ENV === 'development',
 };

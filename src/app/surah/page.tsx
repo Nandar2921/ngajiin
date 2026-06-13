@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import SkeletonSurah from '@/components/ui/skeleton/SkeletonSurah';
+import { Search } from 'lucide-react';
 
 interface Surah {
   surah: number;
@@ -154,39 +155,39 @@ export default function SurahListPage() {
     return name.includes(term) || surah.surah.toString().includes(term);
   });
 
- if (loading) return <SkeletonSurah />;
+  const totalAyat = surahList.reduce((acc, s) => acc + parseInt(s.ayat_count as string), 0);
+
+  if (loading) return <SkeletonSurah />;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            📖 Daftar Surah Al-Quran
+          <h1 className="text-3xl md:text-4xl font-bold text-emerald-500 mb-2">
+            📖 Al-Qur'an
           </h1>
           <p className="text-gray-500">
-            {surahList.length} surah • {surahList.reduce((acc, s) => acc + parseInt(s.ayat_count as string), 0).toLocaleString()} ayat
+            {surahList.length} surah • {totalAyat.toLocaleString()} ayat
           </p>
         </div>
 
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               type="text"
               placeholder="Cari surah... (contoh: Al-Fatihah, Yasin, 36)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 pl-10 pr-4 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white placeholder:text-gray-600"
             />
-            <svg className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
           </div>
         </div>
 
         {/* Grid Surah */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {filteredSurah.map((surah) => {
             const surahName = surahNames[surah.surah];
             const ayatCount = parseInt(surah.ayat_count as string);
@@ -194,25 +195,25 @@ export default function SurahListPage() {
             return (
               <Link
                 key={surah.surah}
-                href={`/search?q=surah ${surah.surah}`}
-                className="group bg-white rounded-xl p-4 border border-gray-100 hover:shadow-lg hover:border-emerald-200 transition-all duration-200"
+                href={`/surah/${surah.surah}`}
+                className="group block bg-gray-900/30 border border-white/5 rounded-xl p-4 hover:bg-gray-900/50 hover:border-emerald-500/30 transition-all duration-200"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     {/* Nomor Surah */}
-                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-700 font-bold text-sm group-hover:bg-emerald-600 group-hover:text-white transition">
+                    <div className="w-10 h-10 flex items-center justify-center bg-emerald-500/10 rounded-xl text-emerald-500 font-bold text-sm group-hover:bg-emerald-500 group-hover:text-white transition">
                       {surah.surah}
                     </div>
                     
                     {/* Nama Surah */}
                     <div>
-                      <div className="font-semibold text-gray-800 group-hover:text-emerald-600 transition">
+                      <div className="font-semibold text-white group-hover:text-emerald-400 transition">
                         {surah.surah}. {surahName?.latin || `Surah ${surah.surah}`}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-400">{ayatCount} ayat</span>
-                        <span className="text-xs text-gray-300">•</span>
-                        <span className="text-xs text-emerald-600 font-arabic">
+                        <span className="text-xs text-gray-500">{ayatCount} ayat</span>
+                        <span className="text-xs text-gray-600">•</span>
+                        <span className="text-xs text-emerald-500 font-arabic">
                           {surahName?.arabic || '۞'}
                         </span>
                       </div>
@@ -220,7 +221,7 @@ export default function SurahListPage() {
                   </div>
                   
                   {/* Arrow Icon */}
-                  <div className="text-emerald-400 opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-1">
+                  <div className="text-emerald-500 opacity-0 group-hover:opacity-100 transition transform group-hover:translate-x-1">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

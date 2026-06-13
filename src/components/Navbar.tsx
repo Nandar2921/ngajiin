@@ -1,206 +1,146 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { useTheme } from 'next-themes';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+// SVG Logo Component (sama persis dengan homepage)
+function SikajiLogo({ size = 28 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="36" height="36" rx="9" fill="#0f1f14" />
+      <path d="M18 10 C14 10 9 12 9 14 L9 26 C9 26 13 24 18 24" stroke="#22d3a0" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M18 10 C22 22 27 12 27 14 L27 26 C27 26 23 24 18 24" stroke="#22d3a0" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <line x1="18" y1="10" x2="18" y2="24" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx="26" cy="11" r="4.5" fill="#0f1f14" />
+      <circle cx="26" cy="11" r="3" fill="#22d3a0" />
+      <line x1="26" y1="8" x2="26" y2="7" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="26" y1="14" x2="26" y2="15" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="23" y1="11" x2="22" y2="11" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
+      <line x1="29" y1="11" x2="30" y2="11" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const { data: session, status } = useSession();
-  const { theme, setTheme } = useTheme();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const navLinks = ['Beranda', "Al-Qur'an", 'Hadits', 'Tafsir', 'Doa'];
+  const linkMap: Record<string, string> = {
+    'Beranda': '/',
+    "Al-Qur'an": '/surah',
+    'Hadits': '/hadith',
+    'Tafsir': '/tafsir',
+    'Doa': '/doa',
+  };
+
+  const getPath = () => {
+    if (typeof window === 'undefined') return '';
+    return window.location.pathname;
+  };
+
+  const isActive = (path: string) => getPath() === path;
 
   if (status === 'loading') {
     return (
-      <nav className="bg-white dark:bg-gray-900 shadow-md px-4 py-3">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="text-xl font-bold text-emerald-700 dark:text-emerald-400">SiKAJI</div>
-          <div className="text-gray-500">Loading...</div>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 32px', height: '62px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(11,17,32,0.92)', backdropFilter: 'blur(12px)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <SikajiLogo size={32} />
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>Si<span style={{ color: '#22d3a0' }}>KAJI</span></div>
+            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Islamic AI Search</div>
+          </div>
         </div>
-      </nav>
+        <div style={{ fontSize: '12px', color: '#475569' }}>Loading...</div>
+      </div>
     );
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-900 shadow-md sticky top-0 z-50 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link href="/" className="text-xl font-bold text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition">
-            SiKAJI
-          </Link>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Link 
-              href="/search" 
-              className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
-            >
-              Search
-            </Link>
-            <Link 
-              href="/surah" 
-              className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
-            >
-              Surah
-            </Link>
-            {/* TAMBAHKAN INI - LINK HADITS */}
-            <Link 
-              href="/hadith" 
-              className="text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
-            >
-              Hadits
-            </Link>
-            
-            {/* Dark Mode Toggle */}
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                aria-label="Toggle dark mode"
-              >
-                {theme === 'dark' ? (
-                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-                  </svg>
-                )}
-              </button>
-            )}
-            
-            {session ? (
-              <>
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {session.user?.name} ({session.user?.role})
-                </span>
-                <Link 
-                  href="/profile" 
-                  className="text-emerald-600 dark:text-emerald-400 hover:underline transition"
-                >
-                  Profile
-                </Link>
-                {session.user?.role === 'admin' && (
-                  <Link
-                    href="/admin"
-                    className="bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-md hover:bg-emerald-200 dark:hover:bg-emerald-800 transition"
-                  >
-                    Dashboard
-                  </Link>
-                )}
-                <button
-                  onClick={() => signOut()}
-                  className="bg-red-600 hover:bg-red-700 text-white text-sm py-1 px-3 rounded-md transition"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <>
-                <Link 
-                  href="/login" 
-                  className="text-emerald-600 dark:text-emerald-400 hover:underline transition"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded-md transition"
-                >
-                  Register
-                </Link>
-              </>
-            )}
+    <>
+      <nav className="sikaji-navbar" style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 32px', height: '62px',
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        position: 'sticky', top: 0, zIndex: 20,
+        background: 'rgba(11,17,32,0.92)',
+        backdropFilter: 'blur(12px)',
+      }}>
+        {/* Logo */}
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+          <SikajiLogo size={32} />
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.03em' }}>
+              Si<span style={{ color: '#22d3a0' }}>KAJI</span>
+            </div>
+            <div style={{ fontSize: '8px', fontWeight: 600, color: '#334155', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '1px' }}>
+              Islamic AI Search
+            </div>
           </div>
+        </Link>
 
-          {/* Mobile Menu Button */}
-          <div className="flex items-center gap-2 md:hidden">
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition"
-                aria-label="Toggle dark mode"
+        {/* Desktop Menu */}
+        <div className="sikaji-desktop-menu" style={{ display: 'flex', gap: '4px' }}>
+          {navLinks.map(link => {
+            const path = linkMap[link];
+            const active = isActive(path);
+            return (
+              <Link
+                key={link}
+                href={path}
+                style={{
+                  padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
+                  color: active ? '#f1f5f9' : '#64748b',
+                  background: active ? 'rgba(255,255,255,0.06)' : 'none',
+                  textDecoration: 'none', transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = '#f1f5f9';
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) (e.currentTarget as HTMLElement).style.color = '#64748b';
+                }}
               >
-                {theme === 'dark' ? '☀️' : '🌙'}
-              </button>
-            )}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-600 dark:text-gray-300 focus:outline-none p-2"
-              aria-label="Menu"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
-          </div>
+                {link}
+              </Link>
+            );
+          })}
         </div>
-      </div>
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-gray-900 border-t dark:border-gray-800 px-4 py-3 space-y-2 shadow-lg">
-          <Link
-            href="/search"
-            className="block text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-2 transition"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Search
-          </Link>
-          <Link
-            href="/surah"
-            className="block text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-2 transition"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Surah
-          </Link>
-          {/* TAMBAHKAN INI - LINK HADITS MOBILE */}
-          <Link
-            href="/hadith"
-            className="block text-gray-600 dark:text-gray-300 hover:text-emerald-600 dark:hover:text-emerald-400 py-2 transition"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Hadits
-          </Link>
-          
+        {/* Right Section */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {session ? (
             <>
-              <div className="text-sm text-gray-600 dark:text-gray-300 py-2 border-t dark:border-gray-800 pt-2">
-                {session.user?.name} ({session.user?.role})
-              </div>
-              <Link
-                href="/profile"
-                className="block text-emerald-600 dark:text-emerald-400 hover:underline py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Profile
-              </Link>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }}>
+                {session.user?.name}
+              </span>
               {session.user?.role === 'admin' && (
                 <Link
                   href="/admin"
-                  className="block bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-md inline-block"
-                  onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                    background: 'rgba(34,211,160,0.1)', border: '1px solid rgba(34,211,160,0.2)',
+                    color: '#22d3a0', textDecoration: 'none',
+                  }}
                 >
-                  Dashboard
+                  Admin
                 </Link>
               )}
               <button
-                onClick={() => {
-                  signOut();
-                  setMobileMenuOpen(false);
+                onClick={() => signOut()}
+                style={{
+                  padding: '7px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
+                  background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)',
+                  color: '#f87171', cursor: 'pointer', fontFamily: 'inherit',
                 }}
-                className="block bg-red-600 hover:bg-red-700 text-white text-sm py-1 px-3 rounded-md w-full text-left"
               >
                 Logout
               </button>
@@ -209,22 +149,86 @@ export default function Navbar() {
             <>
               <Link
                 href="/login"
-                className="block text-emerald-600 dark:text-emerald-400 hover:underline py-2"
-                onClick={() => setMobileMenuOpen(false)}
+                style={{ fontSize: '13px', fontWeight: 500, color: '#64748b', textDecoration: 'none' }}
               >
-                Login
+                Masuk
               </Link>
+              <button
+                onClick={() => router.push('/register')}
+                style={{
+                  padding: '7px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 700,
+                  background: '#22d3a0', color: '#0b1120', border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Mulai
+              </button>
+            </>
+          )}
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="sikaji-mobile-btn"
+            style={{
+              background: 'none', border: 'none', color: '#f1f5f9',
+              fontSize: '22px', cursor: 'pointer', display: 'none',
+            }}
+            aria-label="Menu"
+          >
+            {mobileMenuOpen ? '✕' : '☰'}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Menu Dropdown */}
+      {mobileMenuOpen && (
+        <div style={{
+          position: 'absolute', top: '62px', left: 0, right: 0,
+          background: '#0b1120', borderBottom: '1px solid rgba(255,255,255,0.06)',
+          padding: '16px 32px', display: 'flex', flexDirection: 'column', gap: '12px',
+          zIndex: 19, backdropFilter: 'blur(12px)',
+        }}>
+          {navLinks.map(link => {
+            const path = linkMap[link];
+            return (
               <Link
-                href="/register"
-                className="block bg-emerald-600 text-white px-3 py-1 rounded-md hover:bg-emerald-700 inline-block"
+                key={link}
+                href={path}
                 onClick={() => setMobileMenuOpen(false)}
+                style={{
+                  padding: '10px 0', fontSize: '15px', fontWeight: 500,
+                  color: '#94a3b8', textDecoration: 'none',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                }}
               >
-                Register
+                {link}
               </Link>
+            );
+          })}
+          <hr style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
+          {!session && (
+            <>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 0', color: '#94a3b8', textDecoration: 'none' }}>Masuk</Link>
+              <button onClick={() => { router.push('/register'); setMobileMenuOpen(false); }} style={{ padding: '10px 0', background: 'none', border: 'none', color: '#22d3a0', textAlign: 'left', fontSize: '15px', cursor: 'pointer' }}>Mulai</button>
             </>
           )}
         </div>
       )}
-    </nav>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .sikaji-desktop-menu {
+            display: none !important;
+          }
+          .sikaji-mobile-btn {
+            display: block !important;
+          }
+          nav {
+            padding: 0 16px !important;
+          }
+        }
+      `}</style>
+    </>
   );
 }

@@ -3,7 +3,7 @@ const { WideQuran } = require('widequran');
 
 const pool = new Pool({
   host: 'localhost',
-  port: 5432,
+  port: 5433,
   user: 'postgres',
   password: 'sikaji29',
   database: 'sikaji',

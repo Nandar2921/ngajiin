@@ -44,9 +44,11 @@ export const bookmarks = pgTable('bookmarks', {
   uniqueUserVerse: unique().on(table.userId, table.verseId),
 }));
 
+// HADITS
 export const hadithBooks = pgTable('hadith_books', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
+  slug: varchar('slug', { length: 100 }).unique(),
   nameArabic: varchar('name_arabic', { length: 100 }),
   nameIndonesian: varchar('name_indonesian', { length: 100 }),
   totalHadith: integer('total_hadith'),
@@ -57,10 +59,49 @@ export const hadiths = pgTable('hadiths', {
   id: serial('id').primaryKey(),
   bookId: integer('book_id').notNull().references(() => hadithBooks.id, { onDelete: 'cascade' }),
   number: integer('number').notNull(),
+  chapter: varchar('chapter', { length: 255 }),
   arabic: text('arabic').notNull(),
-  translation: text('translation').notNull(),
-  grade: varchar('grade', { length: 50 }),
   narrator: varchar('narrator', { length: 255 }),
+  source: varchar('source', { length: 255 }),
+}, (table) => ({
+  uniqueBookNumber: unique().on(table.bookId, table.number),
+}));
+
+export const hadithTranslations = pgTable('hadith_translations', {
+  id: serial('id').primaryKey(),
+  hadithId: integer('hadith_id').notNull().references(() => hadiths.id, { onDelete: 'cascade' }),
+  language: varchar('language', { length: 10 }).notNull(),
+  translator: varchar('translator', { length: 100 }),
+  text: text('text').notNull(),
+  source: varchar('source', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const hadithGradings = pgTable('hadith_gradings', {
+  id: serial('id').primaryKey(),
+  hadithId: integer('hadith_id').notNull().references(() => hadiths.id, { onDelete: 'cascade' }),
+  scholar: varchar('scholar', { length: 100 }).notNull(),
+  grade: varchar('grade', { length: 50 }).notNull(),
   reference: varchar('reference', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+// TOPICS
+export const topics = pgTable('topics', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  slug: varchar('slug', { length: 255 }).notNull().unique(),
+  description: text('description'),
+  category: varchar('category', { length: 100 }),
+  image: varchar('image', { length: 500 }),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const topicRelations = pgTable('topic_relations', {
+  id: serial('id').primaryKey(),
+  topicId: integer('topic_id').notNull().references(() => topics.id, { onDelete: 'cascade' }),
+  contentType: varchar('content_type', { length: 50 }).notNull(),
+  contentId: integer('content_id').notNull(),
+  notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow(),
 });

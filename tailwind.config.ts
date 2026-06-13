@@ -23,5 +23,8 @@ const config: Config = {
   },
   plugins: [],
 };
-
+module.exports = {
+  darkMode: 'class',
+  // ... sisanya
+}
 export default config;

@@ -1,8 +1,23 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { 
+  BookOpen, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Upload,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Search
+} from 'lucide-react';
 
 interface Tafsir {
   id: number;
@@ -29,6 +44,7 @@ export default function AdminTafsirPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('list');
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     verseId: '',
@@ -36,6 +52,14 @@ export default function AdminTafsirPage() {
     content: '',
   });
   const [submitting, setSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
+
+  // Import state
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<{ imported: number; failed: number; errors: string[] } | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     if (session?.user?.role === 'admin') {
@@ -47,7 +71,7 @@ export default function AdminTafsirPage() {
     try {
       const [tafsirRes, versesRes] = await Promise.all([
         fetch('/api/admin/tafsir'),
-        fetch('/api/quran/verses?limit=100')
+        fetch('/api/quran/verses?limit=500')
       ]);
       const tafsirData = await tafsirRes.json();
       const versesData = await versesRes.json();
@@ -64,6 +88,7 @@ export default function AdminTafsirPage() {
     e.preventDefault();
     setSubmitting(true);
     setMessage('');
+    setMessageType('info');
 
     try {
       const url = editingId 
@@ -79,6 +104,7 @@ export default function AdminTafsirPage() {
 
       if (res.ok) {
         setMessage(editingId ? '✅ Tafsir berhasil diupdate!' : '✅ Tafsir berhasil ditambahkan!');
+        setMessageType('success');
         setEditingId(null);
         setFormData({ verseId: '', source: 'Ibnu Katsir', content: '' });
         fetchData();
@@ -86,9 +112,11 @@ export default function AdminTafsirPage() {
       } else {
         const error = await res.json();
         setMessage(`❌ Gagal: ${error.error}`);
+        setMessageType('error');
       }
     } catch (error) {
       setMessage('❌ Terjadi kesalahan');
+      setMessageType('error');
     } finally {
       setSubmitting(false);
     }
@@ -111,12 +139,15 @@ export default function AdminTafsirPage() {
       const res = await fetch(`/api/admin/tafsir/${id}`, { method: 'DELETE' });
       if (res.ok) {
         setMessage('✅ Tafsir berhasil dihapus!');
+        setMessageType('success');
         fetchData();
       } else {
         setMessage('❌ Gagal menghapus');
+        setMessageType('error');
       }
     } catch (error) {
       setMessage('❌ Terjadi kesalahan');
+      setMessageType('error');
     }
   };
 
@@ -126,198 +157,471 @@ export default function AdminTafsirPage() {
     setActiveTab('list');
   };
 
-  if (status === 'loading' || loading) return <div className="p-6">Loading...</div>;
-  if (session?.user?.role !== 'admin') return <div className="p-6 text-red-600">Access Denied</div>;
+  // Handle drag & drop for import
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0 && files[0].type === 'application/json') {
+      await handleImport(files[0]);
+    } else {
+      setMessage('❌ Harap upload file JSON');
+      setMessageType('error');
+    }
+  }, []);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      await handleImport(files[0]);
+    }
+  };
+
+  const handleImport = async (file: File) => {
+    setImporting(true);
+    setImportResult(null);
+    setMessage('');
+    
+    const source = prompt('Masukkan sumber tafsir (contoh: Kemenag, Ibnu Katsir, Al-Jalalain):', 'Kemenag');
+    if (!source) {
+      setImporting(false);
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      const jsonData = JSON.parse(text);
+      
+      // Format data: bisa array langsung atau object dengan key 'data'
+      let tafsirListData = Array.isArray(jsonData) ? jsonData : jsonData.data || [];
+      
+      // Validasi format
+      if (!tafsirListData.length) {
+        throw new Error('File JSON tidak memiliki data');
+      }
+
+      const res = await fetch('/api/admin/tafsir/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tafsirList: tafsirListData, source }),
+      });
+      
+      const result = await res.json();
+      
+      if (res.ok) {
+        setImportResult({ 
+          imported: result.imported, 
+          failed: result.failed,
+          errors: result.errors || []
+        });
+        setMessage(`✅ Import selesai! ${result.imported} tafsir berhasil ditambahkan. ${result.failed > 0 ? `${result.failed} gagal.` : ''}`);
+        setMessageType(result.failed > 0 ? 'info' : 'success');
+        fetchData();
+      } else {
+        throw new Error(result.error || 'Import gagal');
+      }
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'File JSON tidak valid';
+      setMessage(`❌ Import gagal: ${errorMsg}`);
+      setMessageType('error');
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const filteredTafsir = tafsirList.filter(tafsir => {
+    const search = searchTerm.toLowerCase();
+    return (
+      tafsir.source?.toLowerCase().includes(search) ||
+      `${tafsir.surah}:${tafsir.ayah}`.includes(search) ||
+      tafsir.content?.toLowerCase().includes(search)
+    );
+  });
+
+  const paginatedTafsir = filteredTafsir.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  const totalPages = Math.ceil(filteredTafsir.length / itemsPerPage);
+
+  if (status === 'loading' || loading) {
+    return (
+      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (session?.user?.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⛔</div>
+          <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
+          <p className="text-gray-400">Halaman ini hanya untuk administrator.</p>
+          <Link href="/" className="mt-4 inline-block text-emerald-500 hover:text-emerald-400">
+            ← Kembali ke Beranda
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const sourcesList = [
+    { name: 'Ibnu Katsir', available: true, count: tafsirList.filter(t => t.source === 'Ibnu Katsir').length },
+    { name: 'Kemenag', available: true, count: tafsirList.filter(t => t.source === 'Kemenag').length },
+    { name: 'Al-Jalalain', available: false, count: 0 },
+    { name: 'Al-Muyassar', available: false, count: 0 },
+    { name: 'Al-Misbah', available: false, count: 0 },
+  ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">📚 Manajemen Tafsir</h1>
-        <Link href="/admin" className="text-emerald-600 hover:underline">
-          ← Kembali ke Dashboard
-        </Link>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="flex gap-2 border-b mb-6 flex-wrap">
-        <button
-          onClick={() => { setActiveTab('list'); cancelEdit(); }}
-          className={`px-4 py-2 ${activeTab === 'list' ? 'border-b-2 border-emerald-600 text-emerald-600' : 'text-gray-500'}`}
-        >
-          📋 Daftar Tafsir ({tafsirList.length})
-        </button>
-        <button
-          onClick={() => { setActiveTab('add'); setEditingId(null); }}
-          className={`px-4 py-2 ${activeTab === 'add' ? 'border-b-2 border-emerald-600 text-emerald-600' : 'text-gray-500'}`}
-        >
-          {editingId ? '✏️ Edit Tafsir' : '➕ Tambah Tafsir'}
-        </button>
-        <button
-          onClick={() => setActiveTab('sources')}
-          className={`px-4 py-2 ${activeTab === 'sources' ? 'border-b-2 border-emerald-600 text-emerald-600' : 'text-gray-500'}`}
-        >
-          📖 Sumber Tafsir
-        </button>
-      </div>
-
-      {message && (
-        <div className="mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-          {message}
+    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-emerald-500">📚 Manajemen Tafsir</h1>
+            <p className="text-gray-500 mt-1">Total: {tafsirList.length} tafsir</p>
+          </div>
+          <Link href="/admin" className="text-gray-400 hover:text-white transition">
+            ← Back to Dashboard
+          </Link>
         </div>
-      )}
 
-      {/* Tab List Tafsir */}
-      {activeTab === 'list' && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white dark:bg-gray-800 border">
-            <thead className="bg-gray-100 dark:bg-gray-700">
-              <tr>
-                <th className="px-4 py-2 border">ID</th>
-                <th className="px-4 py-2 border">QS</th>
-                <th className="px-4 py-2 border">Sumber</th>
-                <th className="px-4 py-2 border">Tafsir</th>
-                <th className="px-4 py-2 border">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tafsirList.map((tafsir) => (
-                <tr key={tafsir.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-4 py-2 border text-center">{tafsir.id}</td>
-                  <td className="px-4 py-2 border text-center">
-                    {tafsir.surah}:{tafsir.ayah}
-                  </td>
-                  <td className="px-4 py-2 border">{tafsir.source}</td>
-                  <td className="px-4 py-2 border max-w-md">
-                    {tafsir.content.substring(0, 100)}...
-                  </td>
-                  <td className="px-4 py-2 border text-center whitespace-nowrap">
-                    <button
-                      onClick={() => handleEdit(tafsir)}
-                      className="text-blue-600 hover:underline mr-3"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(tafsir.id)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {tafsirList.length === 0 && (
-            <div className="text-center py-8 text-gray-500">Belum ada data tafsir</div>
-          )}
+        {/* Message */}
+        {message && (
+          <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
+            messageType === 'success' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' :
+            messageType === 'error' ? 'bg-red-500/10 border border-red-500/20 text-red-400' :
+            'bg-blue-500/10 border border-blue-500/20 text-blue-400'
+          }`}>
+            {messageType === 'success' && <CheckCircle className="w-4 h-4" />}
+            {messageType === 'error' && <AlertCircle className="w-4 h-4" />}
+            {message}
+          </div>
+        )}
+
+        {/* Tab Navigation */}
+        <div className="flex gap-2 border-b border-white/10 mb-6 flex-wrap">
+          <button
+            onClick={() => { setActiveTab('list'); cancelEdit(); }}
+            className={`px-4 py-2 transition ${activeTab === 'list' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            📋 Daftar Tafsir ({tafsirList.length})
+          </button>
+          <button
+            onClick={() => { setActiveTab('add'); setEditingId(null); }}
+            className={`px-4 py-2 transition ${activeTab === 'add' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            {editingId ? '✏️ Edit Tafsir' : '➕ Tambah Tafsir'}
+          </button>
+          <button
+            onClick={() => setActiveTab('import')}
+            className={`px-4 py-2 transition ${activeTab === 'import' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            📤 Import JSON
+          </button>
+          <button
+            onClick={() => setActiveTab('sources')}
+            className={`px-4 py-2 transition ${activeTab === 'sources' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+          >
+            📖 Sumber Tafsir
+          </button>
         </div>
-      )}
 
-      {/* Tab Tambah/Edit Tafsir */}
-      {activeTab === 'add' && (
-        <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
-          {editingId && (
-            <div className="bg-blue-50 p-3 rounded-lg mb-4">
-              ✏️ Sedang mengedit tafsir ID: {editingId}
+        {/* Tab List Tafsir */}
+        {activeTab === 'list' && (
+          <div>
+            {/* Search */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Cari tafsir (surah, sumber, isi)..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+              />
             </div>
-          )}
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Pilih Ayat</label>
-            <select
-              value={formData.verseId}
-              onChange={(e) => setFormData({ ...formData, verseId: e.target.value })}
-              required
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            >
-              <option value="">Pilih Ayat</option>
-              {verses.map((verse) => (
-                <option key={verse.id} value={verse.id}>
-                  QS. {verse.surah}:{verse.ayah} - {verse.translation.substring(0, 50)}...
-                </option>
-              ))}
-            </select>
-          </div>
+            {/* Table */}
+            <div className="overflow-x-auto bg-gray-900/30 border border-white/10 rounded-xl">
+              <table className="w-full">
+                <thead className="bg-gray-800/50 border-b border-white/10">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">QS</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Sumber</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Tafsir</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedTafsir.map((tafsir) => (
+                    <tr key={tafsir.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="px-4 py-3 text-sm">{tafsir.id}</td>
+                      <td className="px-4 py-3 text-sm font-mono text-emerald-400">
+                        {tafsir.surah}:{tafsir.ayah}
+                      </td>
+                      <td className="px-4 py-3 text-sm">
+                        <span className="px-2 py-1 bg-purple-500/10 text-purple-400 rounded-full text-xs">
+                          {tafsir.source}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-400 max-w-md truncate">
+                        {tafsir.content.substring(0, 100)}...
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <button
+                          onClick={() => handleEdit(tafsir)}
+                          className="text-blue-500 hover:text-blue-400 mr-3 transition"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(tafsir.id)}
+                          className="text-red-500 hover:text-red-400 transition"
+                          title="Hapus"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Sumber Tafsir</label>
-            <select
-              value={formData.source}
-              onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            >
-              <option value="Ibnu Katsir">Ibnu Katsir</option>
-              <option value="Al-Jalalain">Al-Jalalain</option>
-              <option value="Al-Muyassar">Al-Muyassar</option>
-              <option value="Tafsir Kemenag">Tafsir Kemenag</option>
-            </select>
-          </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 mt-6">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 transition"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="text-sm text-gray-400">
+                  Halaman {currentPage} dari {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 transition"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Isi Tafsir</label>
-            <textarea
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              required
-              rows={6}
-              className="w-full p-2 border rounded dark:bg-gray-800"
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 disabled:opacity-50"
-            >
-              {submitting ? 'Menyimpan...' : (editingId ? 'Update Tafsir' : 'Simpan Tafsir')}
-            </button>
-            {editingId && (
-              <button
-                type="button"
-                onClick={cancelEdit}
-                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-              >
-                Batal
-              </button>
+            {tafsirList.length === 0 && (
+              <div className="text-center py-12 text-gray-500">
+                Belum ada data tafsir. Import JSON untuk menambahkan.
+              </div>
             )}
           </div>
-        </form>
-      )}
+        )}
 
-      {/* Tab Sumber Tafsir */}
-      {activeTab === 'sources' && (
-        <div>
-          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg mb-4">
-            <h3 className="font-semibold mb-2">📖 Sumber Tafsir Tersedia:</h3>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2">
-                <span className="text-green-600">✅</span>
-                <span>Ibnu Katsir - Tersedia</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-yellow-600">⏳</span>
-                <span>Al-Jalalain - Bisa ditambahkan</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-yellow-600">⏳</span>
-                <span>Al-Muyassar - Bisa ditambahkan</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-yellow-600">⏳</span>
-                <span>Tafsir Ringkas Kemenag - Bisa ditambahkan</span>
-              </li>
-            </ul>
-          </div>
+        {/* Tab Tambah/Edit Tafsir */}
+        {activeTab === 'add' && (
+          <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
+            {editingId && (
+              <div className="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg">
+                ✏️ Sedang mengedit tafsir ID: {editingId}
+              </div>
+            )}
 
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-            <p className="text-sm text-blue-700">
-              💡 Tips: Untuk menambah tafsir, gunakan form "Tambah Tafsir" di tab sebelumnya.
-            </p>
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Pilih Ayat</label>
+              <select
+                value={formData.verseId}
+                onChange={(e) => setFormData({ ...formData, verseId: e.target.value })}
+                required
+                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+              >
+                <option value="">Pilih Ayat</option>
+                {verses.map((verse) => (
+                  <option key={verse.id} value={verse.id}>
+                    QS. {verse.surah}:{verse.ayah} - {verse.translation.substring(0, 60)}...
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Sumber Tafsir</label>
+              <select
+                value={formData.source}
+                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+              >
+                <option value="Ibnu Katsir">Ibnu Katsir</option>
+                <option value="Kemenag">Tafsir Kemenag</option>
+                <option value="Al-Jalalain">Al-Jalalain</option>
+                <option value="Al-Muyassar">Al-Muyassar</option>
+                <option value="Al-Misbah">Al-Misbah (Quraish Shihab)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-1">Isi Tafsir</label>
+              <textarea
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                required
+                rows={8}
+                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white font-mono text-sm"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={submitting}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2 rounded-lg transition disabled:opacity-50"
+              >
+                {submitting ? 'Menyimpan...' : (editingId ? 'Update Tafsir' : 'Simpan Tafsir')}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition"
+                >
+                  Batal
+                </button>
+              )}
+            </div>
+          </form>
+        )}
+
+        {/* Tab Import JSON */}
+        {activeTab === 'import' && (
+          <div>
+            {/* Drop Zone */}
+            <div
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed rounded-xl p-8 text-center transition ${
+                dragActive 
+                  ? 'border-emerald-500 bg-emerald-500/10' 
+                  : 'border-gray-600 hover:border-emerald-500/50'
+              }`}
+            >
+              <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-400 mb-2">
+                Drag & drop file JSON di sini, atau klik untuk memilih file
+              </p>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="file-input"
+              />
+              <label
+                htmlFor="file-input"
+                className="inline-block px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg cursor-pointer transition"
+              >
+                Pilih File JSON
+              </label>
+             <p className="text-xs text-gray-600 mt-3">
+  Format JSON: {'[{"surah": 1, "ayah": 1, "content": "tafsir..."}, ...]'}
+</p>
+            </div>
+
+            {/* Import Progress */}
+            {importing && (
+              <div className="mt-4 text-center">
+                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
+                <p className="text-gray-400">Mengimpor tafsir...</p>
+              </div>
+            )}
+
+            {/* Import Result */}
+            {importResult && (
+              <div className={`mt-4 p-4 rounded-lg ${
+                importResult.failed > 0 
+                  ? 'bg-yellow-500/10 border border-yellow-500/20' 
+                  : 'bg-emerald-500/10 border border-emerald-500/20'
+              }`}>
+                <h3 className="font-semibold mb-2">📊 Hasil Import:</h3>
+                <p>✅ Berhasil: {importResult.imported} tafsir</p>
+                {importResult.failed > 0 && (
+                  <>
+                    <p>⚠️ Gagal: {importResult.failed} tafsir</p>
+                    {importResult.errors.length > 0 && (
+                      <details className="mt-2">
+                        <summary className="text-sm cursor-pointer text-gray-400">Lihat detail error</summary>
+                        <ul className="mt-2 text-xs text-red-400 space-y-1">
+                          {importResult.errors.slice(0, 5).map((err, i) => (
+                            <li key={i}>• {err}</li>
+                          ))}
+                        </ul>
+                      </details>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Tab Sumber Tafsir */}
+        {activeTab === 'sources' && (
+          <div>
+            <div className="bg-gray-900/30 border border-white/10 rounded-xl p-6">
+              <h3 className="font-semibold text-emerald-500 mb-4 flex items-center gap-2">
+                <BookOpen className="w-5 h-5" /> Sumber Tafsir
+              </h3>
+              <div className="space-y-3">
+                {sourcesList.map((source, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                      <span className={`w-2 h-2 rounded-full ${source.available ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
+                      <span className="font-medium">{source.name}</span>
+                      {source.available && (
+                        <span className="text-xs text-gray-500">({source.count} tafsir)</span>
+                      )}
+                    </div>
+                    {source.available ? (
+                      <span className="text-xs text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Tersedia</span>
+                    ) : (
+                      <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">Belum tersedia</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+              <p className="text-sm text-blue-400">
+                💡 Tips: Untuk menambah tafsir, gunakan form "Tambah Tafsir" atau import file JSON.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

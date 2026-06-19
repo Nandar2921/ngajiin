@@ -220,7 +220,6 @@ export default function HomePage() {
   { val: stats.quran > 0 ? stats.quran.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '6.236', lbl: 'Ayat Al-Qur\'an' },
   { val: stats.hadith > 0 ? stats.hadith.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '11.400', lbl: 'Hadits' },
   { val: '114', lbl: 'Surah' },
-  { val: 'AI', lbl: 'Powered Search' },
 ].map((s, i) => (
             <div key={i} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '22px', fontWeight: 800, color: '#22d3a0', letterSpacing: '-0.02em' }}>{s.val}</div>

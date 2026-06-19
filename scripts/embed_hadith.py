@@ -32,7 +32,7 @@ print("\n📋 PILIH:")
 print("1. Embed 5 hadith (test)")
 print("2. Embed 10 hadith")
 print("3. Embed 20 hadith")
-print("4. Embed 1000 hadith")
+print("4. Embed 2000 hadith")
 print("5. Cek Progress")
 
 choice = input("\nPilih nomor: ")
@@ -62,7 +62,7 @@ limits = {
     "1": 5,
     "2": 10,
     "3": 20,
-    "4": 1000
+    "4": 2000
 }
 
 if choice not in limits:

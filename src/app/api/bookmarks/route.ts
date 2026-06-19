@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth.config';
+import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { bookmarks, quranVerses } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
-    console.log('Session:', session?.user);
+    console.log('Session in GET bookmarks:', session?.user?.email);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -41,7 +40,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,8 +48,14 @@ export async function POST(request: Request) {
 
     const userId = parseInt(session.user.id);
     const { verseId } = await request.json();
+
+    if (!verseId) {
+      return NextResponse.json({ error: 'verseId is required' }, { status: 400 });
+    }
     
-    const existing = await db.select()
+    // Cek apakah sudah ada bookmark
+    const existing = await db
+      .select()
       .from(bookmarks)
       .where(
         and(
@@ -77,7 +82,7 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -96,6 +101,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting bookmark:', error);
-    return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete bookmark' }, { status: 500 });
   }
 }

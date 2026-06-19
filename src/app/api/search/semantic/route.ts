@@ -2,13 +2,11 @@ import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 async function getEmbedding(text: string): Promise<number[]> {
   const response = await fetch('http://localhost:8000/embed', {
     method: 'POST',

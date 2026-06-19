@@ -3,13 +3,11 @@ import { getServerSession } from 'next-auth';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 // PUT: Update tafsir
 export async function PUT(
   request: Request,

@@ -1,12 +1,12 @@
+
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // Sinonim untuk memperkaya pencarian
@@ -47,7 +47,10 @@ export async function GET(request: Request) {
 
   try {
     const expandedQueries = expandQuery(q);
-    const searchTerms = expandedQueries.map(term => `%${term}%`);
+    const searchTerm = `%${q}%`;
+    
+    console.log('🔍 Search query:', q);
+    console.log('📊 Expanded:', expandedQueries);
     
     // ========== KEYWORD SEARCH ==========
     const quranKeyword = await pool.query(`
@@ -58,9 +61,11 @@ export async function GET(request: Request) {
         'Al-Quran' as category,
         NULL as content
       FROM quran_verses
-      WHERE translation ILIKE ANY($1::text[])
+      WHERE translation ILIKE $1
       LIMIT $2
-    `, [searchTerms, limit]);
+    `, [searchTerm, limit]);
+
+    console.log('📊 Quran results:', quranKeyword.rows.length);
 
     // ========== SEMANTIC SEARCH (jika diaktifkan) ==========
     let semanticResults: any[] = [];
@@ -85,9 +90,11 @@ export async function GET(request: Request) {
         h.narrator, h.reference, 'Hadits' as category,
         NULL as content
       FROM hadiths h
-      WHERE h.translation ILIKE ANY($1::text[])
+      WHERE h.translation ILIKE $1
       LIMIT $2
-    `, [searchTerms, limit]);
+    `, [searchTerm, limit]);
+
+    console.log('📊 Hadith results:', hadithResults.rows.length);
 
     const tafsirResults = await pool.query(`
       SELECT 
@@ -97,9 +104,11 @@ export async function GET(request: Request) {
         CONCAT('Tafsir ', t.source) as category
       FROM tafsir t
       JOIN quran_verses q ON q.id = t.verse_id
-      WHERE t.content ILIKE ANY($1::text[])
+      WHERE t.content ILIKE $1
       LIMIT $2
-    `, [searchTerms, limit]);
+    `, [searchTerm, limit]);
+
+    console.log('📊 Tafsir results:', tafsirResults.rows.length);
 
     // Gabungkan semua hasil
     let allResults = [...quranKeyword.rows, ...hadithResults.rows, ...tafsirResults.rows];

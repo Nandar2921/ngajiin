@@ -3,13 +3,11 @@ import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json();

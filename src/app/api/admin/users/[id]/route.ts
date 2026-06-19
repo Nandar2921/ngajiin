@@ -1,14 +1,15 @@
+// app/api/admin/users/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
+import { authOptions } from '@/lib/auth.config';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // PUT: Update user
@@ -17,7 +18,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (session?.user?.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -49,6 +50,7 @@ export async function PUT(
     
     return NextResponse.json(result.rows[0]);
   } catch (error) {
+    console.error('Error updating user:', error);
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
 }
@@ -59,7 +61,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (session?.user?.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -72,8 +74,13 @@ export async function PATCH(
       [role, params.id]
     );
     
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    
     return NextResponse.json(result.rows[0]);
   } catch (error) {
+    console.error('Error updating role:', error);
     return NextResponse.json({ error: 'Failed to update role' }, { status: 500 });
   }
 }
@@ -84,7 +91,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (session?.user?.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -94,10 +101,27 @@ export async function DELETE(
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
     }
 
-    await pool.query(`DELETE FROM users WHERE id = $1`, [params.id]);
+    const result = await pool.query(
+      `DELETE FROM users WHERE id = $1 RETURNING id`,
+      [params.id]
+    );
+    
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
     
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting user:', error);
     return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Allow': 'GET, PUT, PATCH, DELETE, OPTIONS',
+    },
+  });
 }

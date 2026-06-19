@@ -1,13 +1,11 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 const imamNames = {
   'bukhari': 'Imam Al-Bukhari (Abu Abdillah Muhammad bin Ismail Al-Bukhari)',
   'muslim': 'Imam Muslim (Abu Al-Husain Muslim bin Al-Hajjaj Al-Qusyairi)',

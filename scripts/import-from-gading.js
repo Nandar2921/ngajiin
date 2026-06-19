@@ -1,13 +1,11 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 // Hanya kitab yang respons API-nya valid (Bukhari & Muslim)
 const BOOKS = [
   { name: 'Shahih Bukhari', slug: 'bukhari' },

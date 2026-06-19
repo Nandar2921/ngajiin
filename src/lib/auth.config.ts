@@ -4,11 +4,10 @@ import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,  // ← pakai port pgvector (Docker)
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
 
 export const authOptions: NextAuthOptions = {

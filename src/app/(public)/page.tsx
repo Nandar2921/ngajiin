@@ -131,7 +131,7 @@ export default function HomePage() {
           letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '28px',
         }}>
           <span style={{ width: '6px', height: '6px', background: '#22d3a0', borderRadius: '50%', animation: 'blink 1.8s infinite' }} />
-          AI-Powered Islamic Search
+          Pencari Referensi Islam
         </div>
 
         <h1 style={{
@@ -162,7 +162,7 @@ export default function HomePage() {
               onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
             >
               <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 0 20px', fontSize: '18px', color: '#22d3a0', flexShrink: 0 }}>
-                ✦
+                <SikajiLogo size={20} />
               </div>
               <input
                 ref={searchRef}
@@ -360,7 +360,7 @@ export default function HomePage() {
         />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(195px, 1fr))', gap: '8px' }}>
           {filteredSurahs.map(s => (
-            <Link key={s.n} href={`/quran/${s.n}`} style={{ textDecoration: 'none' }}>
+            <Link key={s.n} href={`/surah/${s.n}`} style={{ textDecoration: 'none' }}>
               <div
                 style={{
                   background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
@@ -404,7 +404,7 @@ export default function HomePage() {
               onClick={() => router.push('/search')}
               style={{ padding: '13px 28px', borderRadius: '12px', fontSize: '14px', fontWeight: 800, background: '#22d3a0', color: '#0b1120', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', letterSpacing: '-0.01em', transition: 'all 0.15s' }}
             >
-              ✦ Mulai Cari
+               Mulai Cari
             </button>
             <Link href="/surah" style={{ textDecoration: 'none' }}>
               <button style={{ padding: '13px 28px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.15s' }}>
@@ -420,7 +420,7 @@ export default function HomePage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <SikajiLogo size={24} />
           <span style={{ fontSize: '14px', fontWeight: 800, color: '#22d3a0', letterSpacing: '-0.02em' }}>SiKAJI</span>
-          <span style={{ fontSize: '11px', color: '#1e293b', fontWeight: 500 }}>Islamic AI Search</span>
+          <span style={{ fontSize: '11px', color: '#1e293b', fontWeight: 500 }}>Sistem Informasi Kajian Islam</span>
         </div>
         <div style={{ fontSize: '12px', color: '#1e293b' }}>© 2025 SiKAJI — Dibuat untuk umat Muslim Indonesia</div>
       </footer>

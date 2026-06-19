@@ -67,6 +67,7 @@ export default function VerseDetailClient({ surah, ayah }: { surah: string; ayah
   const [copied, setCopied] = useState(false);
   const [showTafsir, setShowTafsir] = useState(true);
   const [selectedReciter, setSelectedReciter] = useState(reciters[0]);
+  const [isBookmarked, setIsBookmarked] = useState(false);
   
   // Audio states
   const [isPlaying, setIsPlaying] = useState(false);
@@ -97,6 +98,26 @@ export default function VerseDetailClient({ surah, ayah }: { surah: string; ayah
         setLoading(false);
       });
   }, [surahNum, ayahNum]);
+
+  // Cek status bookmark
+  useEffect(() => {
+    const checkBookmark = async () => {
+      if (!data?.verse?.id) return;
+      try {
+        const res = await fetch('/api/bookmarks');
+        if (res.ok) {
+          const bookmarks = await res.json();
+          const bookmarked = Array.isArray(bookmarks) && bookmarks.some(
+            (b: any) => b.content_type === 'quran' && b.content_id === data.verse.id
+          );
+          setIsBookmarked(bookmarked);
+        }
+      } catch (error) {
+        console.error('Error checking bookmark:', error);
+      }
+    };
+    checkBookmark();
+  }, [data]);
 
   // Build audio URL from everyayah.com
   useEffect(() => {
@@ -260,6 +281,38 @@ export default function VerseDetailClient({ surah, ayah }: { surah: string; ayah
     }
   };
 
+  // Toggle bookmark
+  const toggleBookmark = async () => {
+    if (!data?.verse?.id) return;
+    
+    try {
+      if (isBookmarked) {
+        const res = await fetch('/api/bookmarks', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content_type: 'quran',
+            content_id: data.verse.id
+          }),
+        });
+        if (res.ok) setIsBookmarked(false);
+      } else {
+        const res = await fetch('/api/bookmarks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content_type: 'quran',
+            content_id: data.verse.id,
+            reference: `QS. ${data.verse.surah}:${data.verse.ayah}`,
+          }),
+        });
+        if (res.ok) setIsBookmarked(true);
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -312,10 +365,11 @@ export default function VerseDetailClient({ surah, ayah }: { surah: string; ayah
               <Share2 className="w-5 h-5" />
             </button>
             <button
+              onClick={toggleBookmark}
               className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
-              title="Bookmark"
+              title={isBookmarked ? 'Hapus bookmark' : 'Simpan bookmark'}
             >
-              <Bookmark className="w-5 h-5" />
+              <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-emerald-500 text-emerald-500' : ''}`} />
             </button>
           </div>
         </div>

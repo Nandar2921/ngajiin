@@ -3,13 +3,11 @@ const fs = require('fs');
 const path = require('path');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 // Mapping bookId dari dataset ke database SiKAJI (sesuai dengan struktur `hadith_books`)
 const BOOK_MAPPING = {
   'bukhari': { name: 'Sahih Bukhari', slug: 'bukhari', nameArabic: 'صحيح البخاري', nameIndonesian: 'Shahih Bukhari' },

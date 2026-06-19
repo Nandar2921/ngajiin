@@ -4,13 +4,11 @@ import { Pool } from 'pg';
 import { ChevronLeft, BookOpen, Search } from 'lucide-react';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 async function getTafsir(id: string) {
   try {
     const result = await pool.query(

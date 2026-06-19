@@ -2,13 +2,11 @@ const { Pool } = require('pg');
 const { pipeline } = require('@xenova/transformers');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 async function testSemanticSearch() {
   const query = process.argv[2] || 'qurban';
   console.log(`🔍 Mencari: "${query}"\n`);

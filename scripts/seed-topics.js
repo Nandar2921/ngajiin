@@ -1,13 +1,11 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 // Data topik
 const topics = [
   { name: 'Kaum Nabi Luth', slug: 'kaum-nabi-luth', description: 'Kisah kaum yang diazab karena homoseksual', category: 'qisas' },

@@ -1,36 +1,35 @@
+
+from flask import Flask, request, jsonify
 from sentence_transformers import SentenceTransformer
-from fastapi import FastAPI
-from pydantic import BaseModel
-import uvicorn
-from typing import List
+import numpy as np
 
-# Load model IndoBERT
-print("📥 Loading IndoBERT model...")
-model = SentenceTransformer("indobenchmark/indobert-base-p2")
-print("✅ Model siap!")
+app = Flask(__name__)
 
-app = FastAPI()
+# Load model Indo-Islamic BERT
+print("📥 Loading model: ramadita/indo-islamic-sentence-bert...")
+model = SentenceTransformer("ramadita/indo-islamic-sentence-bert")
+print("✅ Model loaded successfully!")
 
-class EmbedRequest(BaseModel):
-    text: str
+@app.route('/embed', methods=['POST'])
+def embed():
+    try:
+        data = request.get_json()
+        text = data.get('text', '')
+        
+        if not text:
+            return jsonify({'error': 'Text is required'}), 400
+        
+        # Generate embedding
+        embedding = model.encode(text, convert_to_numpy=True)
+        # Normalisasi
+        embedding = embedding / np.linalg.norm(embedding)
+        
+        return jsonify({
+            'embedding': embedding.tolist(),
+            'text': text
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-class BatchEmbedRequest(BaseModel):
-    texts: List[str]
-
-@app.post("/embed")
-async def get_embedding(request: EmbedRequest):
-    embedding = model.encode(request.text).tolist()
-    return {"embedding": embedding}
-
-@app.post("/embed/batch")
-async def get_embeddings_batch(request: BatchEmbedRequest):
-    """Proses banyak teks sekaligus (lebih cepat)"""
-    embeddings = model.encode(request.texts).tolist()
-    return {"embeddings": embeddings}
-
-@app.get("/health")
-async def health():
-    return {"status": "ok", "model": "indobert-base-p2"}
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, timeout_keep_alive=120)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000, debug=False)

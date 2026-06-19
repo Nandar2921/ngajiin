@@ -1,14 +1,14 @@
+// app/api/admin/users/count/route.ts
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth.config';
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 export async function GET() {
@@ -28,7 +28,6 @@ export async function GET() {
   }
 }
 
-// Tambahkan handler untuk OPTIONS (preflight CORS)
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,

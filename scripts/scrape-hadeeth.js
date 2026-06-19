@@ -2,13 +2,11 @@ const { Pool } = require('pg');
 const cheerio = require('cheerio');
 
 const pool = new Pool({
-  host: 'localhost',
-  port: 5433,
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
 });
-
 const BASE_URL = 'https://hadeethenc.com/id/browse/category/1';
 
 // Function fetch dengan retry dan user-agent

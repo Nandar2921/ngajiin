@@ -28,13 +28,14 @@ export default function Navbar() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = ['Beranda', "Al-Qur'an", 'Hadits', 'Tafsir', 'Doa'];
+  const navLinks = ['Beranda', "Al-Qur'an", 'Hadits', 'Tafsir', 'Doa', 'Explore'];
   const linkMap: Record<string, string> = {
     'Beranda': '/',
     "Al-Qur'an": '/surah',
     'Hadits': '/hadith',
     'Tafsir': '/tafsir',
     'Doa': '/doa',
+    'Explore': '/explore',
   };
 
   const getPath = () => {
@@ -56,7 +57,7 @@ export default function Navbar() {
           <SikajiLogo size={32} />
           <div>
             <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>Si<span style={{ color: '#22d3a0' }}>KAJI</span></div>
-            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Islamic AI Search</div>
+            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Sistem Informasi Kajian Islam</div>
           </div>
         </div>
         <div style={{ fontSize: '12px', color: '#475569' }}>Loading...</div>
@@ -82,7 +83,7 @@ export default function Navbar() {
               Si<span style={{ color: '#22d3a0' }}>KAJI</span>
             </div>
             <div style={{ fontSize: '8px', fontWeight: 600, color: '#334155', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '1px' }}>
-              Islamic AI Search
+              Sistem Informasi Kajian Islam
             </div>
           </div>
         </Link>
@@ -119,9 +120,23 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {session ? (
             <>
+              {/* Tombol Profile */}
+              <Link
+                href="/profile"
+                style={{
+                  padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 500,
+                  color: '#64748b', textDecoration: 'none', transition: 'all 0.15s',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = '#f1f5f9')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+              >
+                Profile
+              </Link>
+              
               <span style={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }}>
                 {session.user?.name}
               </span>
+              
               {session.user?.role === 'admin' && (
                 <Link
                   href="/admin"
@@ -134,6 +149,7 @@ export default function Navbar() {
                   Admin
                 </Link>
               )}
+              
               <button
                 onClick={() => signOut()}
                 style={{
@@ -206,11 +222,59 @@ export default function Navbar() {
               </Link>
             );
           })}
+          
+          {/* Profile di Mobile Menu */}
+          {session && (
+            <Link
+              href="/profile"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                padding: '10px 0', fontSize: '15px', fontWeight: 500,
+                color: '#94a3b8', textDecoration: 'none',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}
+            >
+              Profile
+            </Link>
+          )}
+          
           <hr style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
-          {!session && (
+          
+          {!session ? (
             <>
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 0', color: '#94a3b8', textDecoration: 'none' }}>Masuk</Link>
-              <button onClick={() => { router.push('/register'); setMobileMenuOpen(false); }} style={{ padding: '10px 0', background: 'none', border: 'none', color: '#22d3a0', textAlign: 'left', fontSize: '15px', cursor: 'pointer' }}>Mulai</button>
+              <Link href="/login" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 0', color: '#94a3b8', textDecoration: 'none' }}>
+                Masuk
+              </Link>
+              <button onClick={() => { router.push('/register'); setMobileMenuOpen(false); }} style={{ padding: '10px 0', background: 'none', border: 'none', color: '#22d3a0', textAlign: 'left', fontSize: '15px', cursor: 'pointer' }}>
+                Mulai
+              </button>
+            </>
+          ) : (
+            <>
+              {session.user?.role === 'admin' && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{
+                    padding: '10px 0', fontSize: '15px', fontWeight: 500,
+                    color: '#22d3a0', textDecoration: 'none',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  }}
+                >
+                  Admin Dashboard
+                </Link>
+              )}
+              <button
+                onClick={() => { signOut(); setMobileMenuOpen(false); }}
+                style={{
+                  padding: '10px 0', fontSize: '15px', fontWeight: 500,
+                  color: '#f87171', textDecoration: 'none', textAlign: 'left',
+                  cursor: 'pointer', background: 'none', border: 'none',
+                  width: '100%',
+                }}
+              >
+                Logout
+              </button>
             </>
           )}
         </div>

@@ -14,6 +14,8 @@ interface Hadith {
   grade: string;
   reference: string;
   book_name: string;
+  sanad: string;
+  matan: string;
 }
 
 export default function HadithDetailPage() {
@@ -63,12 +65,11 @@ export default function HadithDetailPage() {
     );
   }
 
-  const isSanadAvailable = hadith.arabic && hadith.arabic.length > 100;
+  const hasSanad = hadith.sanad && hadith.sanad.length > 0;
 
   return (
     <div className="min-h-screen bg-[#0b1120] text-gray-200">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Back Link */}
         <Link 
           href="/hadith" 
           className="inline-flex items-center gap-1 text-emerald-500 hover:text-emerald-400 mb-6 transition"
@@ -76,9 +77,8 @@ export default function HadithDetailPage() {
           <ChevronLeft className="w-4 h-4" /> Kembali ke Daftar Hadits
         </Link>
         
-        {/* Card Utama */}
         <div className="bg-gray-900/30 border border-white/10 rounded-xl overflow-hidden">
-          {/* Header - Gradient */}
+          {/* Header */}
           <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
             <div className="flex justify-between items-center flex-wrap gap-2">
               <h1 className="text-2xl font-bold text-white">
@@ -91,16 +91,15 @@ export default function HadithDetailPage() {
             <p className="text-emerald-100 text-sm mt-2 opacity-80">{hadith.book_name}</p>
           </div>
           
-          {/* Content */}
           <div className="p-6">
-            {/* Teks Arab */}
+            {/* ===== MATAN (Teks Arab TANPA Sanad) ===== */}
             <div className="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-6 mb-6">
               <div className="text-right text-2xl md:text-3xl font-arabic leading-loose text-gray-200">
-                {hadith.arabic}
+                {hadith.matan}
               </div>
             </div>
             
-            {/* Terjemahan */}
+            {/* ===== TERJEMAHAN ===== */}
             <div className="mb-6">
               <h2 className="text-lg font-semibold text-emerald-500 mb-3 flex items-center gap-2">
                 <BookOpen className="w-5 h-5" /> Terjemahan
@@ -129,8 +128,8 @@ export default function HadithDetailPage() {
                 </div>
               </div>
 
-              {/* Sanad - Rantai Perawi */}
-              {isSanadAvailable && (
+              {/* ===== SANAD ===== */}
+              {hasSanad && (
                 <div className="mt-4 pt-3 border-t border-white/10">
                   <button
                     onClick={() => setShowSanad(!showSanad)}
@@ -144,7 +143,7 @@ export default function HadithDetailPage() {
                     <div className="mt-3 p-4 bg-gray-900/50 border border-white/10 rounded-lg">
                       <h3 className="text-sm font-semibold text-emerald-500 mb-2">Sanad Hadits:</h3>
                       <div className="text-right font-arabic text-base leading-loose text-gray-300">
-                        {hadith.arabic}
+                        {hadith.sanad}
                       </div>
                       <p className="text-xs text-gray-500 mt-3 italic">
                         *Sanad adalah rantai periwayat yang menyampaikan hadits ini dari generasi ke generasi
@@ -163,7 +162,7 @@ export default function HadithDetailPage() {
                 href={`/hadith/${hadith.id - 1}`}
                 className="flex items-center gap-1 text-emerald-500 hover:text-emerald-400 transition"
               >
-                <ChevronLeft className="w-4 h-4" /> Hadits Sebelumnya
+                <ChevronLeft className="w-4 h-4" /> Sebelumnya
               </Link>
             ) : (
               <div></div>
@@ -176,14 +175,12 @@ export default function HadithDetailPage() {
               Daftar
             </Link>
             
-            {hadith.number < 42 && (
-              <Link 
-                href={`/hadith/${hadith.id + 1}`}
-                className="flex items-center gap-1 text-emerald-500 hover:text-emerald-400 transition ml-auto"
-              >
-                Hadits Selanjutnya <ChevronRight className="w-4 h-4" />
-              </Link>
-            )}
+            <Link 
+              href={`/hadith/${hadith.id + 1}`}
+              className="flex items-center gap-1 text-emerald-500 hover:text-emerald-400 transition ml-auto"
+            >
+              Selanjutnya <ChevronRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </div>

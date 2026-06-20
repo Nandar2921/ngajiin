@@ -1,13 +1,8 @@
 import { NextResponse } from 'next/server';
-import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
+// [FIX BUG #5] Gunakan pool terpusat dari src/lib/pg.ts
+import { pool } from '@/lib/pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
 export async function POST(request: Request) {
   try {
     const { name, email, password } = await request.json();

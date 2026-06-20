@@ -1,14 +1,13 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
+// [FIX BUG #5] Gunakan pool terpusat dari src/lib/pg.ts
+import { pool } from '@/lib/pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
+// [FIX BUG #6] Throw error jika NEXTAUTH_SECRET tidak di-set
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is not set. Please set it in your environment variables.');
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -85,6 +84,7 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 hari
   },
-  secret: process.env.NEXTAUTH_SECRET || 'sikaji-secret-key-change-in-production',
+  // [FIX BUG #6] Hapus fallback hardcoded — error sudah dilempar di atas
+  secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
 };

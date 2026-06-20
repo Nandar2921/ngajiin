@@ -1,32 +1,74 @@
 import { NextResponse } from 'next/server';
-import { Pool } from 'pg';
+import { pool } from '@/lib/pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const limit = parseInt(searchParams.get('limit') || '100');
-  const offset = parseInt(searchParams.get('offset') || '0');
+  const search = searchParams.get('search') || '';
+  const bookId = searchParams.get('bookId') || '';
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '20');
+  const offset = (page - 1) * limit;
 
   try {
-    const result = await pool.query(`
+    let query = `
       SELECT 
-        h.id, h.number, h.arabic, h.translation, 
-        h.narrator, h.grade, h.reference,
-        b.id as book_id, b.name as book_name
+        h.id,
+        h.number,
+        h.arabic,
+        h.translation,
+        h.narrator,
+        h.grade,
+        b.name as book_name,
+        h.book_id
       FROM hadiths h
-      JOIN hadith_books b ON h.book_id = b.id
-      ORDER BY h.book_id, h.number
-      LIMIT $1 OFFSET $2
-    `, [limit, offset]);
-    
-    return NextResponse.json(result.rows);
+      JOIN hadith_books b ON b.id = h.book_id
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    // Filter by book
+    if (bookId) {
+      query += ` AND h.book_id = $${paramIndex}`;
+      params.push(parseInt(bookId));
+      paramIndex++;
+    }
+
+    // Search by keyword
+    if (search) {
+      query += ` AND (h.translation ILIKE $${paramIndex} OR h.arabic ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    // Count total
+    const countQuery = query.replace(
+      /SELECT[\s\S]*?FROM/,
+      'SELECT COUNT(*) as total FROM'
+    );
+    const countResult = await pool.query(countQuery, params);
+    const total = parseInt(countResult.rows[0]?.total || '0');
+
+    // Get data with pagination
+    query += ` ORDER BY h.book_id, h.number LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+    params.push(limit, offset);
+
+    const result = await pool.query(query, params);
+
+    return NextResponse.json({
+      data: result.rows,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
-    console.error('Error fetching hadith:', error);
-    return NextResponse.json({ error: 'Failed to fetch hadith' }, { status: 500 });
+    console.error('Error fetching hadiths:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch hadiths' },
+      { status: 500 }
+    );
   }
 }

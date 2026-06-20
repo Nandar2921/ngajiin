@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss';
 
+// [FIX BUG #8] Hapus tailwind.config.js — pertahankan file ini saja (tailwind.config.ts)
 const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -23,8 +24,5 @@ const config: Config = {
   },
   plugins: [],
 };
-module.exports = {
-  darkMode: 'class',
-  // ... sisanya
-}
+
 export default config;

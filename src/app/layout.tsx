@@ -14,8 +14,6 @@ export const metadata: Metadata = {
     template: '%s | SiKAJI'
   },
   description: 'Platform kajian Islam modern dengan Al-Quran, Tafsir, dan Hadits.',
-  // HAPUS BARIS INI:
-  // manifest: '/site.webmanifest',
 };
 
 export default function RootLayout({

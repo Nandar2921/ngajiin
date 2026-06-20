@@ -1,19 +1,16 @@
 import { NextResponse } from 'next/server';
-import { Pool } from 'pg';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth.config';
+// [FIX BUG #5] Gunakan pool terpusat dari src/lib/pg.ts
+import { pool } from '@/lib/pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
 export async function GET() {
   try {
-    // Sementara nonaktifkan auth check untuk testing
-    // const session = await getServerSession();
-    // if (!session || session.user?.role !== 'admin') {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
+    // [FIX BUG #4] Aktifkan kembali auth check — hanya admin yang boleh akses
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Quran stats
     const quranResult = await pool.query(`

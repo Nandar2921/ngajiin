@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { Pool } from 'pg';
+import { pool } from '@/lib/pg';
 import { authOptions } from '@/lib/auth.config';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
-// GET: Ambil riwayat pencarian user
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
+    
     if (!session?.user?.id) {
       return NextResponse.json([]);
     }
@@ -23,7 +17,7 @@ export async function GET() {
        FROM search_history 
        WHERE user_id = $1 
        ORDER BY created_at DESC 
-       LIMIT 20`,
+       LIMIT 50`,
       [userId]
     );
 
@@ -34,10 +28,10 @@ export async function GET() {
   }
 }
 
-// POST: Simpan riwayat pencarian
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -45,13 +39,13 @@ export async function POST(request: Request) {
     const userId = parseInt(session.user.id);
     const { keyword } = await request.json();
 
-    if (!keyword) {
-      return NextResponse.json({ error: 'Missing keyword' }, { status: 400 });
+    if (!keyword || keyword.trim().length < 2) {
+      return NextResponse.json({ error: 'Keyword too short' }, { status: 400 });
     }
 
     await pool.query(
       `INSERT INTO search_history (user_id, keyword) VALUES ($1, $2)`,
-      [userId, keyword]
+      [userId, keyword.trim()]
     );
 
     return NextResponse.json({ success: true });
@@ -61,10 +55,10 @@ export async function POST(request: Request) {
   }
 }
 
-// DELETE: Hapus semua riwayat pencarian
 export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
+    
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

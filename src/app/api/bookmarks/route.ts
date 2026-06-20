@@ -1,106 +1,142 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { bookmarks, quranVerses } from '@/lib/db/schema';
-import { eq, and, desc } from 'drizzle-orm';
+import { getServerSession } from 'next-auth';
+import { pool } from '@/lib/pg';
+import { authOptions } from '@/lib/auth.config';
 
+// GET: Ambil semua bookmark user
 export async function GET() {
   try {
-    const session = await auth();
-    
-    console.log('Session in GET bookmarks:', session?.user?.email);
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = parseInt(session.user.id);
-    
-    const userBookmarks = await db
-      .select({
-        id: bookmarks.id,
-        verseId: bookmarks.verseId,
-        surah: quranVerses.surah,
-        ayah: quranVerses.ayah,
-        arabic: quranVerses.arabic,
-        translation: quranVerses.translation,
-        createdAt: bookmarks.createdAt,
-      })
-      .from(bookmarks)
-      .leftJoin(quranVerses, eq(bookmarks.verseId, quranVerses.id))
-      .where(eq(bookmarks.userId, userId))
-      .orderBy(desc(bookmarks.createdAt));
 
-    return NextResponse.json(userBookmarks);
+    const result = await pool.query(`
+      SELECT 
+        b.id,
+        b.verse_id as "verseId",
+        q.surah,
+        q.ayah,
+        q.arabic,
+        q.translation,
+        b.created_at as "createdAt"
+      FROM bookmarks b
+      JOIN quran_verses q ON q.id = b.verse_id
+      WHERE b.user_id = $1
+      ORDER BY b.created_at DESC
+    `, [userId]);
+
+    return NextResponse.json(result.rows);
   } catch (error) {
     console.error('Error fetching bookmarks:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch bookmarks', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }
 
+// POST: Tambah bookmark
 export async function POST(request: Request) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = parseInt(session.user.id);
-    const { verseId } = await request.json();
+    const body = await request.json();
+    const { verseId } = body;
 
     if (!verseId) {
-      return NextResponse.json({ error: 'verseId is required' }, { status: 400 });
-    }
-    
-    // Cek apakah sudah ada bookmark
-    const existing = await db
-      .select()
-      .from(bookmarks)
-      .where(
-        and(
-          eq(bookmarks.userId, userId),
-          eq(bookmarks.verseId, verseId)
-        )
+      return NextResponse.json(
+        { error: 'verseId is required' },
+        { status: 400 }
       );
-    
-    if (existing.length > 0) {
-      return NextResponse.json({ error: 'Bookmark already exists' }, { status: 400 });
     }
-    
-    const newBookmark = await db.insert(bookmarks).values({
-      userId: userId,
-      verseId: verseId,
-    }).returning();
-    
-    return NextResponse.json(newBookmark[0], { status: 201 });
+
+    // Cek apakah sudah ada
+    const existing = await pool.query(
+      'SELECT id FROM bookmarks WHERE user_id = $1 AND verse_id = $2',
+      [userId, verseId]
+    );
+
+    if (existing.rows.length > 0) {
+      return NextResponse.json(
+        { error: 'Bookmark already exists' },
+        { status: 400 }
+      );
+    }
+
+    await pool.query(
+      'INSERT INTO bookmarks (user_id, verse_id) VALUES ($1, $2)',
+      [userId, verseId]
+    );
+
+    return NextResponse.json({ success: true, message: 'Bookmark added' });
   } catch (error) {
     console.error('Error creating bookmark:', error);
-    return NextResponse.json({ error: 'Failed to create bookmark' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create bookmark', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
 }
 
+// DELETE: Hapus bookmark
 export async function DELETE(request: Request) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const userId = parseInt(session.user.id);
-    const { verseId } = await request.json();
-    
-    await db.delete(bookmarks).where(
-      and(
-        eq(bookmarks.userId, userId),
-        eq(bookmarks.verseId, verseId)
-      )
+    const body = await request.json();
+    const { verseId } = body;
+
+    if (!verseId) {
+      return NextResponse.json(
+        { error: 'verseId is required' },
+        { status: 400 }
+      );
+    }
+
+    const result = await pool.query(
+      'DELETE FROM bookmarks WHERE user_id = $1 AND verse_id = $2 RETURNING id',
+      [userId, verseId]
     );
-    
-    return NextResponse.json({ success: true });
+
+    if (result.rows.length === 0) {
+      return NextResponse.json(
+        { error: 'Bookmark not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, message: 'Bookmark deleted' });
   } catch (error) {
     console.error('Error deleting bookmark:', error);
-    return NextResponse.json({ error: 'Failed to delete bookmark' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to delete bookmark', details: error instanceof Error ? error.message : 'Unknown error' },
+      { status: 500 }
+    );
   }
+}
+
+// Support OPTIONS (CORS preflight)
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Allow': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }

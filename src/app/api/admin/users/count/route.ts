@@ -11,17 +11,13 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await pool.query(`
-      SELECT id, name, email, role, created_at 
-      FROM users 
-      ORDER BY id
-    `);
-
-    return NextResponse.json(result.rows);
+    const result = await pool.query('SELECT COUNT(*) FROM users');
+    
+    return NextResponse.json({ count: parseInt(result.rows[0].count) });
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching users count:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch users' },
+      { error: 'Failed to fetch users count' },
       { status: 500 }
     );
   }

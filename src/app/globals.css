@@ -55,3 +55,22 @@ mark {
   padding: 0 2px;
   border-radius: 4px;
 }
+
+
+/* Responsive utilities */
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 400px) {
+  .xs\:inline {
+    display: inline !important;
+  }
+}

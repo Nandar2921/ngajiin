@@ -12,7 +12,7 @@ async function testConnection() {
     console.log('🔍 Mencoba koneksi ke database...');
     console.log(`   Host: localhost:5433`);
     console.log(`   User: postgres`);
-    console.log(`   Database: sikaji`);
+    console.log(`   Database: Kajiin`);
     
     const result = await pool.query('SELECT NOW()');
     console.log('✅ Koneksi berhasil!');

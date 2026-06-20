@@ -2,13 +2,13 @@
 const fs = require('fs');
 const path = require('path');
 
-const SURAH_DIR = 'D:/sikaji/quran-json/surah';
+const SURAH_DIR = 'D:/Kajiin/quran-json/surah';
 
 const pool = new Pool({
   host: 'localhost',
   user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  password: 'Kajiin29',
+  database: 'Kajiin',
 });
 
 async function importFullQuran() {

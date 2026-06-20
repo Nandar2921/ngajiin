@@ -46,7 +46,7 @@ export default function DoaDetailPage() {
 
   const copyToClipboard = async () => {
     if (!doa) return;
-    const text = `${doa.arabic}\n\n${doa.latin}\n\n${doa.translation}\n\n${doa.source ? `Sumber: ${doa.source}` : ''}\n\n🤲 SiKAJI - Doa Harian`;
+    const text = `${doa.arabic}\n\n${doa.latin}\n\n${doa.translation}\n\n${doa.source ? `Sumber: ${doa.source}` : ''}\n\n🤲 Kajiin - Doa Harian`;
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -58,7 +58,7 @@ export default function DoaDetailPage() {
 
   const shareContent = async () => {
     if (!doa) return;
-    const text = `${doa.title}\n\n${doa.translation.substring(0, 200)}...\n\nBaca selengkapnya di SiKAJI`;
+    const text = `${doa.title}\n\n${doa.translation.substring(0, 200)}...\n\nBaca selengkapnya di Kajiin`;
     if (navigator.share) {
       try {
         await navigator.share({

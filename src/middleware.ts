@@ -6,14 +6,15 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Admin routes protection
-    if (path.startsWith('/admin') && token?.role !== 'admin') {
+    // ✅ Tambahkan proteksi untuk admin routes DAN admin API
+    if ((path.startsWith('/admin') || path.startsWith('/api/admin')) && token?.role !== 'admin') {
       return NextResponse.redirect(new URL('/login', req.url));
     }
-    // Profile routes require authentication (any role)
+    
     if (path.startsWith('/profile') && !token) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
+    
     return NextResponse.next();
   },
   {
@@ -21,6 +22,7 @@ export default withAuth(
   }
 );
 
+// ✅ Tambahkan /api/admin/:path* ke matcher
 export const config = { 
-  matcher: ['/admin/:path*', '/profile/:path*'] 
+  matcher: ['/admin/:path*', '/api/admin/:path*', '/profile/:path*'] 
 };

@@ -53,7 +53,7 @@ export default function RegisterPage() {
               Buat Akun Baru
             </h1>
             <p className="text-gray-500 mt-2 text-sm">
-              Daftar untuk menikmati fitur SiKAJI
+              Daftar untuk menikmati fitur Kajiin
             </p>
           </div>
 

@@ -47,7 +47,7 @@ export default function LoginPage() {
               Selamat Datang Kembali
             </h1>
             <p className="text-gray-500 mt-2 text-sm">
-              Masuk untuk melanjutkan ke SiKAJI
+              Masuk untuk melanjutkan ke Kajiin
             </p>
           </div>
 

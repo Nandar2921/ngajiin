@@ -8,14 +8,26 @@ const inter = Inter({
   subsets: ['latin'],
 });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: {
-    default: 'SiKAJI - Sistem Informasi Kajian Islam',
-    template: '%s | SiKAJI'
+    default: "Kajiin - Cari. Kaji. Pahami.",
+    template: "%s | Kajiin",
   },
-  description: 'Platform kajian Islam modern dengan Al-Quran, Tafsir, dan Hadits.',
-};
 
+  description:
+    "Kajiin adalah platform pencarian dan pembelajaran ilmu Islam modern yang menghubungkan Al-Quran, Hadits, Tafsir, dan referensi terpercaya.",
+
+  applicationName: "Kajiin",
+
+  keywords: [
+    "Kajiin",
+    "Quran",
+    "Hadits",
+    "Tafsir",
+    "Islam",
+    "Kajian Islam",
+  ],
+};
 export default function RootLayout({
   children,
 }: {

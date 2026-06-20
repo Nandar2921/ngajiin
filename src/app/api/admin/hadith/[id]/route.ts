@@ -1,20 +1,32 @@
 import { NextResponse } from 'next/server';
-import { Pool } from 'pg';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth.config';
+import { pool } from '@/lib/pg';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
+  // ✅ TAMBAHKAN AUTH CHECK
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
-    await pool.query(`DELETE FROM hadiths WHERE id = $1`, [params.id]);
+    // ✅ Hapus juga dari tabel terkait (CASCADE akan otomatis)
+    const result = await pool.query(
+      `DELETE FROM hadiths WHERE id = $1 RETURNING *`,
+      [params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Hadith not found' }, { status: 404 });
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting hadith:', error);
     return NextResponse.json({ error: 'Failed to delete hadith' }, { status: 500 });
   }
 }

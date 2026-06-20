@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 // SVG Logo Component (sama persis dengan homepage)
-function SikajiLogo({ size = 28 }: { size?: number }) {
+function KajiinLogo({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="36" height="36" rx="9" fill="#0f1f14" />
@@ -54,10 +54,12 @@ export default function Navbar() {
         background: 'rgba(11,17,32,0.92)', backdropFilter: 'blur(12px)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <SikajiLogo size={32} />
+          <KajiinLogo size={32} />
           <div>
             <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>Si<span style={{ color: '#22d3a0' }}>KAJI</span></div>
-            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Sistem Informasi Kajian Islam</div>
+            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Kajiin
+
+Cari. Kaji. Pahami.</div>
           </div>
         </div>
         <div style={{ fontSize: '12px', color: '#475569' }}>Loading...</div>
@@ -67,7 +69,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sikaji-navbar" style={{
+      <nav className="Kajiin-navbar" style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 32px', height: '62px',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -77,19 +79,17 @@ export default function Navbar() {
       }}>
         {/* Logo */}
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-          <SikajiLogo size={32} />
+          <KajiinLogo size={32} />
           <div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9', letterSpacing: '-0.03em' }}>
-              Si<span style={{ color: '#22d3a0' }}>KAJI</span>
-            </div>
-            <div style={{ fontSize: '8px', fontWeight: 600, color: '#334155', letterSpacing: '0.12em', textTransform: 'uppercase', marginTop: '1px' }}>
-              Sistem Informasi Kajian Islam
+            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>KAJI<span style={{ color: '#22d3a0' }}>IN</span></div>
+<div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Cari. Kaji. Pahami.
+
             </div>
           </div>
         </Link>
 
         {/* Desktop Menu */}
-        <div className="sikaji-desktop-menu" style={{ display: 'flex', gap: '4px' }}>
+        <div className="Kajiin-desktop-menu" style={{ display: 'flex', gap: '4px' }}>
           {navLinks.map(link => {
             const path = linkMap[link];
             const active = isActive(path);
@@ -185,7 +185,7 @@ export default function Navbar() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="sikaji-mobile-btn"
+            className="Kajiin-mobile-btn"
             style={{
               background: 'none', border: 'none', color: '#f1f5f9',
               fontSize: '22px', cursor: 'pointer', display: 'none',
@@ -282,10 +282,10 @@ export default function Navbar() {
 
       <style jsx>{`
         @media (max-width: 768px) {
-          .sikaji-desktop-menu {
+          .Kajiin-desktop-menu {
             display: none !important;
           }
-          .sikaji-mobile-btn {
+          .Kajiin-mobile-btn {
             display: block !important;
           }
           nav {

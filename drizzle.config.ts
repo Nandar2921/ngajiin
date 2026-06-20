@@ -5,6 +5,7 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: 'postgresql://postgres:sikaji29@localhost:5433/sikaji',
+    // ✅ PAKAI ENV VAR
+    url: process.env.DATABASE_URL!,
   },
 });

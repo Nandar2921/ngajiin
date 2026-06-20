@@ -1,26 +1,17 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { Pool } from 'pg';
 import { authOptions } from '@/lib/auth.config';
-
-// PASTIKAN PAKAI PORT 5433 (Docker pgvector)
-const pool = new Pool({
-  host: 'localhost',
-  port: 5433,  // ← UBAH DARI 5433 KE 5433
-  user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
-});
+import { pool } from '@/lib/pg'; // ✅ PAKAI POOL TERPUSAT
 
 // GET: Ambil semua tafsir
 export async function GET() {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // ✅ SUDAH ADA AUTH, BAIK
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const result = await pool.query(`
       SELECT t.*, q.surah, q.ayah, q.translation
       FROM tafsir t
@@ -38,22 +29,19 @@ export async function GET() {
 
 // POST: Tambah tafsir baru
 export async function POST(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const body = await request.json();
     const { verseId, source, content } = body;
 
-    // Validasi input
     if (!verseId || !source || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Cek apakah verseId ada di quran_verses
     const verseCheck = await pool.query(
       'SELECT id FROM quran_verses WHERE id = $1',
       [verseId]
@@ -80,13 +68,12 @@ export async function POST(request: Request) {
 
 // DELETE: Hapus tafsir
 export async function DELETE(request: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

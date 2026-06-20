@@ -476,7 +476,7 @@ export default function SearchContent() {
                             e.preventDefault();
                             if (navigator.share) {
                               navigator.share({
-                                title: `SiKAJI - ${result.reference}`,
+                                title: `Kajiin - ${result.reference}`,
                                 text: displayText.substring(0, 200),
                                 url: window.location.href,
                               });

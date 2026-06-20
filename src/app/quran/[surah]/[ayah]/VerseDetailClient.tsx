@@ -100,7 +100,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
   // 🔥 FIX: Load reciter dari localStorage
   const [selectedReciter, setSelectedReciter] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('sikaji-selected-reciter');
+      const saved = localStorage.getItem('Kajiin-selected-reciter');
       if (saved) {
         const found = reciters.find(r => r.id === saved);
         if (found) return found;
@@ -120,7 +120,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
     const reciter = reciters.find(r => r.id === reciterId);
     if (reciter) {
       setSelectedReciter(reciter);
-      localStorage.setItem('sikaji-selected-reciter', reciter.id);
+      localStorage.setItem('Kajiin-selected-reciter', reciter.id);
       setAudioState(prev => ({ ...prev, error: null }));
       hasAutoPlayed.current = false;
     }

@@ -1,41 +1,45 @@
 import { NextResponse } from 'next/server';
+import { pool } from '@/lib/pg';
 
-// Data doa statis (sementara)
-const doaList = [
-  {
-    id: 1,
-    title: "Doa Sebelum Tidur",
-    arabic: "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا",
-    latin: "Bismikallahumma amutu wa ahya",
-    translation: "Dengan nama-Mu ya Allah, aku mati dan aku hidup",
-    source: "HR. Bukhari No. 6312"
-  },
-  {
-    id: 2,
-    title: "Doa Bangun Tidur",
-    arabic: "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ",
-    latin: "Alhamdulillahilladzi ahyaana ba'da ma amaatana wa ilaihin nusyur",
-    translation: "Segala puji bagi Allah yang menghidupkan kami setelah mematikan kami, dan kepada-Nya kami dibangkitkan",
-    source: "HR. Bukhari No. 6312"
-  },
-  {
-    id: 3,
-    title: "Doa Masuk Masjid",
-    arabic: "اللَّهُمَّ افْتَحْ لِي أَبْوَابَ رَحْمَتِكَ",
-    latin: "Allahummaftah li abwaba rahmatik",
-    translation: "Ya Allah, bukakanlah untukku pintu-pintu rahmat-Mu",
-    source: "HR. Muslim No. 713"
-  },
-  {
-    id: 4,
-    title: "Doa Keluar Masjid",
-    arabic: "اللَّهُمَّ إِنِّي أَسْأَلُكَ مِنْ فَضْلِكَ",
-    latin: "Allahumma inni as-aluka min fadlik",
-    translation: "Ya Allah, sesungguhnya aku memohon kepada-Mu karunia-Mu",
-    source: "HR. Muslim No. 713"
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const category = searchParams.get('category');
+    const search = searchParams.get('search');
+
+    let query = `
+      SELECT 
+        d.*,
+        dc.name as category_name,
+        dc.slug as category_slug
+      FROM doas d
+      LEFT JOIN doa_categories dc ON d.category_id = dc.id
+      WHERE 1=1
+    `;
+    const params: any[] = [];
+    let paramIndex = 1;
+
+    if (category) {
+      query += ` AND dc.slug = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    if (search) {
+      query += ` AND (d.title ILIKE $${paramIndex} OR d.translation ILIKE $${paramIndex})`;
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY d.title LIMIT 50`;
+
+    const result = await pool.query(query, params);
+    return NextResponse.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching doas:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch doas' },
+      { status: 500 }
+    );
   }
-];
-
-export async function GET() {
-  return NextResponse.json(doaList);
 }

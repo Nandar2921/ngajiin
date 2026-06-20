@@ -5,8 +5,8 @@ const fs = require('fs');
 const pool = new Pool({
   host: 'localhost',
   user: 'postgres',
-  password: 'sikaji29',
-  database: 'sikaji',
+  password: 'Kajiin29',
+  database: 'Kajiin',
 });
 
 async function importQuranFromCloud() {

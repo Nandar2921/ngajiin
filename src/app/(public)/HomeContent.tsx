@@ -40,17 +40,18 @@ const surahs = [
   {n:114,name:'An-Nas',arti:'Manusia',type:'Mekah',ayat:6,ar:'الناس'},
 ];
 
+// ✅ QUERY SUDAH DIPENDEK
 const topics = [
-  { label: 'Qurban', icon: '🐑', q: 'hukum qurban', color: '#22d3a0', bg: 'rgba(34,211,160,0.08)', border: 'rgba(34,211,160,0.2)' },
-  { label: 'Riba', icon: '💰', q: 'bahaya riba dalam islam', color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
-  { label: 'Shalat', icon: '🕌', q: 'tata cara shalat yang benar', color: '#60a5fa', bg: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.2)' },
-  { label: 'Puasa', icon: '🌙', q: 'keutamaan puasa ramadan', color: '#c084fc', bg: 'rgba(192,132,252,0.08)', border: 'rgba(192,132,252,0.2)' },
-  { label: 'Zakat', icon: '💝', q: 'cara menghitung zakat', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
-  { label: 'Haji', icon: '🕋', q: 'syarat wajib haji', color: '#22d3a0', bg: 'rgba(34,211,160,0.08)', border: 'rgba(34,211,160,0.2)' },
-  { label: 'Sabar', icon: '🌿', q: 'ayat tentang sabar', color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', border: 'rgba(45,212,191,0.2)' },
-  { label: 'Sedekah', icon: '🌟', q: 'keutamaan sedekah', color: '#fb923c', bg: 'rgba(251,146,60,0.08)', border: 'rgba(251,146,60,0.2)' },
-  { label: 'Doa Rezeki', icon: '🙏', q: 'doa memohon rezeki', color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)' },
-  { label: 'Taubat', icon: '✨', q: 'cara bertobat dari dosa', color: '#34d399', bg: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.2)' },
+  { label: 'Qurban', icon: '🐑', q: 'qurban', color: '#22d3a0', bg: 'rgba(34,211,160,0.08)', border: 'rgba(34,211,160,0.2)' },
+  { label: 'Riba', icon: '💰', q: 'riba', color: '#f87171', bg: 'rgba(248,113,113,0.08)', border: 'rgba(248,113,113,0.2)' },
+  { label: 'Shalat', icon: '🕌', q: 'shalat', color: '#60a5fa', bg: 'rgba(96,165,250,0.08)', border: 'rgba(96,165,250,0.2)' },
+  { label: 'Puasa', icon: '🌙', q: 'puasa', color: '#c084fc', bg: 'rgba(192,132,252,0.08)', border: 'rgba(192,132,252,0.2)' },
+  { label: 'Zakat', icon: '💝', q: 'zakat', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+  { label: 'Haji', icon: '🕋', q: 'haji', color: '#22d3a0', bg: 'rgba(34,211,160,0.08)', border: 'rgba(34,211,160,0.2)' },
+  { label: 'Sabar', icon: '🌿', q: 'sabar', color: '#2dd4bf', bg: 'rgba(45,212,191,0.08)', border: 'rgba(45,212,191,0.2)' },
+  { label: 'Sedekah', icon: '🌟', q: 'sedekah', color: '#fb923c', bg: 'rgba(251,146,60,0.08)', border: 'rgba(251,146,60,0.2)' },
+  { label: 'Doa Rezeki', icon: '🙏', q: 'doa', color: '#a78bfa', bg: 'rgba(167,139,250,0.08)', border: 'rgba(167,139,250,0.2)' },
+  { label: 'Taubat', icon: '✨', q: 'taubat', color: '#34d399', bg: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.2)' },
 ];
 
 const features = [
@@ -68,7 +69,7 @@ const hints = [
 ];
 
 // SVG Logo Component
-function SikajiLogo({ size = 36 }: { size?: number }) {
+function KajiinLogo({ size = 36 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="36" height="36" rx="9" fill="#0f1f14" />
@@ -161,7 +162,7 @@ export default function HomeContent() {
               onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
             >
               <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px 0 20px', fontSize: '18px', color: '#22d3a0', flexShrink: 0 }}>
-                <SikajiLogo size={20} />
+                <KajiinLogo size={20} />
               </div>
               <input
                 ref={searchRef}
@@ -421,8 +422,8 @@ export default function HomeContent() {
       {/* FOOTER */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '28px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <SikajiLogo size={24} />
-          <span style={{ fontSize: '14px', fontWeight: 800, color: '#22d3a0', letterSpacing: '-0.02em' }}>SiKAJI</span>
+          <KajiinLogo size={24} />
+          <span style={{ fontSize: '14px', fontWeight: 800, color: '#22d3a0', letterSpacing: '-0.02em' }}>Kajiin</span>
           <span style={{ fontSize: '11px', color: '#1e293b', fontWeight: 500 }}>{t('footer.about')}</span>
         </div>
         <div style={{ fontSize: '12px', color: '#1e293b' }}>{t('footer.copyright')}</div>

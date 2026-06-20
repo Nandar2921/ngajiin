@@ -26,7 +26,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-// Data topik explore
+// ✅ QUERY SUDAH DIPENDEK
 const exploreTopics = [
   { 
     id: 1, 
@@ -34,7 +34,7 @@ const exploreTopics = [
     icon: Heart, 
     color: '#f43f5e', 
     bg: 'rgba(244,63,94,0.1)',
-    query: 'akhlak mulia',
+    query: 'akhlak',
     description: 'Akhlak terpuji, budi pekerti, etika Islam',
     count: 45
   },
@@ -44,7 +44,7 @@ const exploreTopics = [
     icon: Star, 
     color: '#fbbf24', 
     bg: 'rgba(251,191,36,0.1)',
-    query: 'tauhid keesaan allah',
+    query: 'tauhid',
     description: 'Keesaan Allah, iman, rukun iman',
     count: 32
   },
@@ -54,7 +54,7 @@ const exploreTopics = [
     icon: Church, 
     color: '#10b981', 
     bg: 'rgba(16,185,129,0.1)',
-    query: 'tata cara sholat',
+    query: 'shalat',
     description: 'Sholat wajib, sunnah, tata cara',
     count: 67
   },
@@ -64,7 +64,7 @@ const exploreTopics = [
     icon: Moon, 
     color: '#8b5cf6', 
     bg: 'rgba(139,92,246,0.1)',
-    query: 'keutamaan puasa',
+    query: 'puasa',
     description: 'Puasa Ramadhan, puasa sunnah',
     count: 41
   },
@@ -74,7 +74,7 @@ const exploreTopics = [
     icon: HandHeart, 
     color: '#f59e0b', 
     bg: 'rgba(245,158,11,0.1)',
-    query: 'hukum zakat',
+    query: 'zakat',
     description: 'Zakat fitrah, zakat mal, infak',
     count: 28
   },
@@ -84,7 +84,7 @@ const exploreTopics = [
     icon: Home, 
     color: '#06b6d4', 
     bg: 'rgba(6,182,212,0.1)',
-    query: 'tata cara haji',
+    query: 'haji',
     description: 'Ibadah haji, umrah, manasik',
     count: 23
   },
@@ -94,7 +94,7 @@ const exploreTopics = [
     icon: Users, 
     color: '#ec4899', 
     bg: 'rgba(236,72,153,0.1)',
-    query: 'hukum nikah',
+    query: 'nikah',
     description: 'Nikah, keluarga, rumah tangga',
     count: 35
   },
@@ -104,7 +104,7 @@ const exploreTopics = [
     icon: Briefcase, 
     color: '#14b8a6', 
     bg: 'rgba(20,184,166,0.1)',
-    query: 'jual beli dalam islam',
+    query: 'jual beli',
     description: 'Bisnis, jual beli, riba, hutang',
     count: 29
   },
@@ -114,7 +114,7 @@ const exploreTopics = [
     icon: GraduationCap, 
     color: '#6366f1', 
     bg: 'rgba(99,102,241,0.1)',
-    query: 'menuntut ilmu',
+    query: 'ilmu',
     description: 'Menuntut ilmu, guru, murid',
     count: 18
   },
@@ -124,7 +124,7 @@ const exploreTopics = [
     icon: UsersRound, 
     color: '#fb923c', 
     bg: 'rgba(251,146,60,0.1)',
-    query: 'birrul walidain',
+    query: 'orang tua',
     description: 'Berbakti kepada orang tua, silaturahmi',
     count: 31
   },
@@ -144,7 +144,7 @@ const exploreTopics = [
     icon: Shield, 
     color: '#dc2626', 
     bg: 'rgba(220,38,38,0.1)',
-    query: 'jihad fisabilillah',
+    query: 'jihad',
     description: 'Jihad, perjuangan, membela agama',
     count: 22
   },
@@ -154,7 +154,7 @@ const exploreTopics = [
     icon: Flower2, 
     color: '#a855f7', 
     bg: 'rgba(168,85,247,0.1)',
-    query: 'keutamaan sabar',
+    query: 'sabar',
     description: 'Sabar, syukur, tawakal',
     count: 27
   },
@@ -164,7 +164,7 @@ const exploreTopics = [
     icon: Sparkles, 
     color: '#fbbf24', 
     bg: 'rgba(251,191,36,0.1)',
-    query: 'doa sehari hari',
+    query: 'doa',
     description: 'Doa harian, dzikir, wirid',
     count: 42
   },
@@ -174,7 +174,7 @@ const exploreTopics = [
     icon: Sun, 
     color: '#f97316', 
     bg: 'rgba(249,115,22,0.1)',
-    query: 'gambaran surga',
+    query: 'surga',
     description: 'Surga, neraka, akhirat, hisab',
     count: 33
   },
@@ -184,7 +184,7 @@ const exploreTopics = [
     icon: BookOpen, 
     color: '#3b82f6', 
     bg: 'rgba(59,130,246,0.1)',
-    query: 'kisah nabi',
+    query: 'nabi',
     description: 'Kisah para nabi dan rasul',
     count: 56
   },

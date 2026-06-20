@@ -104,7 +104,7 @@ export default function ProfileContent() {
   // ===== SETTINGS STATE =====
   const [selectedReciter, setSelectedReciter] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('sikaji-selected-reciter');
+      const saved = localStorage.getItem('Kajiin-selected-reciter');
       if (saved) {
         const found = reciters.find(r => r.id === saved);
         if (found) return found;
@@ -114,19 +114,19 @@ export default function ProfileContent() {
   });
   const [autoNext, setAutoNext] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('sikaji-auto-next') !== 'false';
+      return localStorage.getItem('Kajiin-auto-next') !== 'false';
     }
     return true;
   });
   const [language, setLanguage] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('sikaji-language') || 'id';
+      return localStorage.getItem('Kajiin-language') || 'id';
     }
     return 'id';
   });
   const [notifications, setNotifications] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('sikaji-notifications') !== 'false';
+      return localStorage.getItem('Kajiin-notifications') !== 'false';
     }
     return true;
   });
@@ -159,7 +159,7 @@ export default function ProfileContent() {
 
     if (session?.user) {
       setEditName(session.user.name || '');
-      const savedImage = localStorage.getItem('sikaji-profile-image');
+      const savedImage = localStorage.getItem('Kajiin-profile-image');
       if (savedImage) setProfileImage(savedImage);
       fetchData();
     }
@@ -212,7 +212,7 @@ export default function ProfileContent() {
     reader.onload = (event) => {
       const imageData = event.target?.result as string;
       setProfileImage(imageData);
-      localStorage.setItem('sikaji-profile-image', imageData);
+      localStorage.setItem('Kajiin-profile-image', imageData);
       setEditSuccess('Foto profil berhasil diupdate');
       setTimeout(() => setEditSuccess(null), 3000);
     };
@@ -221,7 +221,7 @@ export default function ProfileContent() {
 
   const removeProfileImage = () => {
     setProfileImage(null);
-    localStorage.removeItem('sikaji-profile-image');
+    localStorage.removeItem('Kajiin-profile-image');
     setEditSuccess('Foto profil dihapus');
     setTimeout(() => setEditSuccess(null), 3000);
   };
@@ -340,24 +340,24 @@ export default function ProfileContent() {
     const reciter = reciters.find(r => r.id === reciterId);
     if (reciter) {
       setSelectedReciter(reciter);
-      localStorage.setItem('sikaji-selected-reciter', reciter.id);
+      localStorage.setItem('Kajiin-selected-reciter', reciter.id);
     }
   };
 
   const handleAutoNextChange = (value: boolean) => {
     setAutoNext(value);
-    localStorage.setItem('sikaji-auto-next', String(value));
+    localStorage.setItem('Kajiin-auto-next', String(value));
   };
 
   const handleLanguageChange = (code: string) => {
     setLanguage(code);
-    localStorage.setItem('sikaji-language', code);
+    localStorage.setItem('Kajiin-language', code);
     window.location.reload();
   };
 
   const handleNotificationsChange = (value: boolean) => {
     setNotifications(value);
-    localStorage.setItem('sikaji-notifications', String(value));
+    localStorage.setItem('Kajiin-notifications', String(value));
   };
 
   const handleDeleteAccount = async () => {
@@ -919,7 +919,7 @@ export default function ProfileContent() {
               <div className="space-y-3 text-sm">
                 <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
                   <span className="text-gray-500">{t('profile.about')}</span>
-                  <span className="text-white">SiKAJI</span>
+                  <span className="text-white">Kajiin</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
                   <span className="text-gray-500">{t('profile.version')}</span>

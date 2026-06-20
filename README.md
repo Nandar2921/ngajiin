@@ -1,4 +1,4 @@
-# SiKAJI - Sistem Informasi Kajian Islam
+# Sikaji - Sistem Informasi Kajian Islam
 
 Platform kajian Islam modern dengan Al-Quran, Tafsir, dan Hadits.
 
@@ -27,5 +27,5 @@ Platform kajian Islam modern dengan Al-Quran, Tafsir, dan Hadits.
 
 1. Clone repository
 ```bash
-git clone https://github.com/Nandar2921/sikaji.git
-cd sikaji
+git clone https://github.com/Nandar2921/Kajiin.git
+cd Kajiin

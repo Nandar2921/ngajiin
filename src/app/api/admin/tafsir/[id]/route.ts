@@ -1,24 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { Pool } from 'pg';
+import { authOptions } from '@/lib/auth.config'; // ✅ IMPORT authOptions
+import { pool } from '@/lib/pg'; // ✅ PAKAI POOL TERPUSAT
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
-// PUT: Update tafsir
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const session = await getServerSession();
-    if (session?.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // ✅ FIX: tambahkan authOptions
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     const body = await request.json();
     const { verseId, source, content } = body;
 
@@ -36,25 +31,27 @@ export async function PUT(
     
     return NextResponse.json(result.rows[0]);
   } catch (error) {
+    console.error('Error updating tafsir:', error);
     return NextResponse.json({ error: 'Failed to update tafsir' }, { status: 500 });
   }
 }
 
-// DELETE: Hapus tafsir
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  try {
-    const session = await getServerSession();
-    if (session?.user?.role !== 'admin') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+  // ✅ FIX: tambahkan authOptions
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'admin') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
+  try {
     await pool.query(`DELETE FROM tafsir WHERE id = $1`, [params.id]);
     
     return NextResponse.json({ success: true });
   } catch (error) {
+    console.error('Error deleting tafsir:', error);
     return NextResponse.json({ error: 'Failed to delete tafsir' }, { status: 500 });
   }
 }

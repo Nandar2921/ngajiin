@@ -208,7 +208,7 @@ export default function AdminPage() {
             <Database className="w-4 h-4" /> Informasi Sistem
           </h3>
           <div className="text-sm text-gray-500 space-y-1">
-            <p>✅ Versi: SiKAJI v2.0</p>
+            <p>✅ Versi: Kajiin v2.0</p>
             <p>✅ Database: PostgreSQL + pgvector</p>
             <p>✅ Autentikasi: NextAuth.js</p>
             <p>✅ Pencarian: Hybrid (Keyword + Semantic)</p>

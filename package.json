@@ -1,7 +1,7 @@
 {
-  "name": "sikaji",
+  "name": "kajiin",
   "version": "1.0.0",
-  "description": "",
+  "description": "Kajiin - Cari. Kaji. Pahami.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
@@ -10,10 +10,12 @@
     "lint": "next lint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx scripts/seed-quran.ts"
+    "db:seed": "tsx scripts/seed-quran.ts",
+    "embedding:dev": "python embedding-api.py",
+    "embedding:prod": "gunicorn -w 4 -b 0.0.0.0:$PORT embedding-api:app"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nur Wahyu Nandarudin",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {

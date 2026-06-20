@@ -18,21 +18,25 @@ const nextConfig = {
         "onnxruntime-node": false,
       };
     }
+
     config.module.rules.push({
       test: /\.node$/,
       use: 'null-loader',
     });
+
     config.plugins.push(
       new webpack.IgnorePlugin({
         resourceRegExp: /^onnxruntime-node$/,
       })
     );
+
     return config;
   },
   experimental: {
     serverComponentsExternalPackages: ['onnxruntime-node', '@xenova/transformers'],
   },
-  transpilePackages: ['@xenova/transformers'],
+  // Hapus @xenova/transformers dari sini karena sudah ada di atas
+  transpilePackages: [],
 };
 
 export default nextConfig;

@@ -120,10 +120,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Additional Info */}
-        <p className="text-center text-muted-foreground/60 text-xs mt-6">
-          Demo akun: admin@example.com / admin123
-        </p>
+       
       </div>
     </div>
   );

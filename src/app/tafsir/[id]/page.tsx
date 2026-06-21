@@ -42,7 +42,7 @@ export default async function TafsirDetailPage({ params }: { params: { id: strin
   }
   
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Tombol kembali */}
         <Link 
@@ -53,7 +53,7 @@ export default async function TafsirDetailPage({ params }: { params: { id: strin
         </Link>
         
         {/* Card Utama */}
-        <div className="bg-gray-900/30 border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
           {/* Header - Gradient */}
           <div className="bg-gradient-to-r from-purple-700 to-indigo-700 px-6 py-5">
             <h1 className="text-2xl font-bold text-white mb-1">
@@ -72,11 +72,11 @@ export default async function TafsirDetailPage({ params }: { params: { id: strin
           </div>
           
           {/* Teks Arab & Terjemahan */}
-          <div className="bg-emerald-950/30 border-b border-white/10 px-6 py-5">
-            <div className="text-right text-2xl font-arabic leading-loose text-gray-200">
+          <div className="bg-emerald-950/30 border-b border-border px-6 py-5">
+            <div className="text-right text-2xl font-arabic leading-loose text-foreground">
               {tafsir.arabic}
             </div>
-            <div className="text-gray-400 mt-3 text-sm italic">
+            <div className="text-muted-foreground mt-3 text-sm italic">
               {tafsir.translation}
             </div>
           </div>
@@ -86,13 +86,13 @@ export default async function TafsirDetailPage({ params }: { params: { id: strin
             <h2 className="font-semibold text-lg text-purple-400 mb-4 flex items-center gap-2">
               <BookOpen className="w-5 h-5" /> Penjelasan Tafsir
             </h2>
-            <div className="text-gray-300 leading-relaxed whitespace-pre-line">
+            <div className="text-foreground/80 leading-relaxed whitespace-pre-line">
               {tafsir.content}
             </div>
           </div>
           
           {/* Footer Navigasi */}
-          <div className="bg-gray-900/50 border-t border-white/10 px-6 py-4 flex justify-between items-center">
+          <div className="bg-card border-t border-border px-6 py-4 flex justify-between items-center">
             <Link 
               href="/search" 
               className="inline-flex items-center gap-1 text-emerald-500 hover:text-emerald-400 text-sm transition"

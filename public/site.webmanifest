@@ -1,7 +1,7 @@
 {
-  "name": "Kajiin",
-  "short_name": "Kajiin",
-  "description": "Cari. Kaji. Pahami.",
+  "name": "SiKAJI",
+  "short_name": "SiKAJI",
+  "description": "Sistem Informasi Kajian Islam",
   "start_url": "/",
   "display": "standalone",
   "theme_color": "#059669",

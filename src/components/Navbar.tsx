@@ -2,297 +2,196 @@
 
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
+import { Search, Moon, Sun, User, LogOut, Menu, X } from 'lucide-react';
+import Logo from './Logo';
 
-// SVG Logo Component (sama persis dengan homepage)
-function KajiinLogo({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="36" height="36" rx="9" fill="#0f1f14" />
-      <path d="M18 10 C14 10 9 12 9 14 L9 26 C9 26 13 24 18 24" stroke="#22d3a0" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <path d="M18 10 C22 22 27 12 27 14 L27 26 C27 26 23 24 18 24" stroke="#22d3a0" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <line x1="18" y1="10" x2="18" y2="24" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="26" cy="11" r="4.5" fill="#0f1f14" />
-      <circle cx="26" cy="11" r="3" fill="#22d3a0" />
-      <line x1="26" y1="8" x2="26" y2="7" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="26" y1="14" x2="26" y2="15" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="23" y1="11" x2="22" y2="11" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
-      <line x1="29" y1="11" x2="30" y2="11" stroke="#22d3a0" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
+// [UI REFRESH] Navbar didesain ulang mengikuti hasil desain Stitch (layout,
+// responsive, dark/light toggle), TAPI semua logic auth asli dipertahankan
+// 100% sama seperti Navbar lama: useSession/signOut dari next-auth,
+// pengecekan session.user?.role === 'admin' untuk link Admin, dan alur
+// login/register yang sama. Brand text diperbarui dari "SiKAJI" -> "KAJIIN"
+// sesuai rebranding resmi.
 export default function Navbar() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = ['Beranda', "Al-Qur'an", 'Hadits', 'Tafsir', 'Doa', 'Explore'];
-  const linkMap: Record<string, string> = {
-    'Beranda': '/',
-    "Al-Qur'an": '/surah',
-    'Hadits': '/hadith',
-    'Tafsir': '/tafsir',
-    'Doa': '/doa',
-    'Explore': '/explore',
-  };
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const getPath = () => {
-    if (typeof window === 'undefined') return '';
-    return window.location.pathname;
-  };
+  const navLinks = [
+    { label: "Al-Qur'an", href: '/surah' },
+    { label: 'Hadits', href: '/hadith' },
+    { label: 'Tafsir', href: '/tafsir' },
+    { label: 'Doa', href: '/doa' },
+    { label: 'Explore', href: '/explore' },
+  ];
 
-  const isActive = (path: string) => getPath() === path;
-
-  if (status === 'loading') {
-    return (
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px', height: '62px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        background: 'rgba(11,17,32,0.92)', backdropFilter: 'blur(12px)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <KajiinLogo size={32} />
-          <div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>Si<span style={{ color: '#22d3a0' }}>KAJI</span></div>
-            <div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Kajiin
-
-Cari. Kaji. Pahami.</div>
-          </div>
-        </div>
-        <div style={{ fontSize: '12px', color: '#475569' }}>Loading...</div>
-      </div>
-    );
-  }
+  const isActive = (path: string) => pathname === path || (path !== '/' && pathname?.startsWith(path));
 
   return (
-    <>
-      <nav className="Kajiin-navbar" style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px', height: '62px',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-        position: 'sticky', top: 0, zIndex: 20,
-        background: 'rgba(11,17,32,0.92)',
-        backdropFilter: 'blur(12px)',
-      }}>
-        {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-          <KajiinLogo size={32} />
-          <div>
-            <div style={{ fontSize: '16px', fontWeight: 900, color: '#f1f5f9' }}>KAJI<span style={{ color: '#22d3a0' }}>IN</span></div>
-<div style={{ fontSize: '8px', color: '#334155', marginTop: '1px' }}>Cari. Kaji. Pahami.
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
+            <Logo />
+            <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-foreground">
+              KAJI<span className="text-primary">IN</span>
+            </span>
+          </Link>
 
-            </div>
-          </div>
-        </Link>
-
-        {/* Desktop Menu */}
-        <div className="Kajiin-desktop-menu" style={{ display: 'flex', gap: '4px' }}>
-          {navLinks.map(link => {
-            const path = linkMap[link];
-            const active = isActive(path);
-            return (
+          {/* Desktop Nav */}
+          <div className="hidden md:flex flex-1 justify-center space-x-1 lg:space-x-2 xl:space-x-4">
+            {navLinks.map((link) => (
               <Link
-                key={link}
-                href={path}
-                style={{
-                  padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500,
-                  color: active ? '#f1f5f9' : '#64748b',
-                  background: active ? 'rgba(255,255,255,0.06)' : 'none',
-                  textDecoration: 'none', transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) (e.currentTarget as HTMLElement).style.color = '#f1f5f9';
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) (e.currentTarget as HTMLElement).style.color = '#64748b';
-                }}
+                key={link.href}
+                href={link.href}
+                className={`px-3 xl:px-4 py-2 rounded-full font-semibold transition-all text-sm xl:text-base ${
+                  isActive(link.href)
+                    ? 'text-primary bg-primary/10'
+                    : 'text-foreground/80 hover:text-primary hover:bg-primary/10'
+                }`}
               >
-                {link}
+                {link.label}
               </Link>
-            );
-          })}
-        </div>
+            ))}
+          </div>
 
-        {/* Right Section */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {session ? (
+          {/* Actions */}
+          <div className="flex items-center gap-1">
+            <Link
+              href="/search"
+              className="p-2 text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
+              aria-label="Cari"
+            >
+              <Search className="w-5 h-5 md:w-[22px] md:h-[22px]" />
+            </Link>
+
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
+                aria-label="Ganti tema"
+              >
+                {theme === 'dark' ? <Sun className="w-5 h-5 md:w-[22px] md:h-[22px]" /> : <Moon className="w-5 h-5 md:w-[22px] md:h-[22px]" />}
+              </button>
+            )}
+
+            {status === 'loading' ? (
+              <div className="w-8 h-8 rounded-full bg-muted animate-pulse ml-1" />
+            ) : session ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="hidden sm:flex p-2 text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
+                  aria-label="Profil"
+                >
+                  <User className="w-5 h-5 md:w-[22px] md:h-[22px]" />
+                </Link>
+
+                {session.user?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="hidden sm:inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all ml-1"
+                  >
+                    Admin
+                  </Link>
+                )}
+
+                <button
+                  onClick={() => signOut()}
+                  className="hidden sm:flex p-2 text-rose-500 hover:bg-rose-500/10 rounded-full transition-all ml-1"
+                  aria-label="Keluar"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </>
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 ml-1">
+                <Link href="/login" className="px-3 py-2 text-sm font-semibold text-foreground/80 hover:text-primary transition-colors">
+                  Masuk
+                </Link>
+                <button
+                  onClick={() => router.push('/register')}
+                  className="px-4 py-2 rounded-full text-sm font-bold bg-primary text-white hover:bg-brand-emerald-dark transition-colors"
+                >
+                  Mulai
+                </button>
+              </div>
+            )}
+
+            {/* Mobile hamburger — buat akses Profile/Admin/Login/Logout di layar kecil
+                (BottomNav cuma nampung 5 menu konten utama, bukan menu akun) */}
+            <button
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              className="sm:hidden p-2 text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-full transition-all"
+              aria-label="Menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile dropdown (akun & menu yang tidak ada di BottomNav) */}
+      {mobileMenuOpen && (
+        <div className="sm:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 py-4 space-y-1">
+          {status === 'loading' ? null : session ? (
             <>
-              {/* Tombol Profile */}
               <Link
                 href="/profile"
-                style={{
-                  padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 500,
-                  color: '#64748b', textDecoration: 'none', transition: 'all 0.15s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = '#f1f5f9')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-foreground/90 hover:bg-primary/10 font-medium"
               >
-                Profile
+                <User className="w-4 h-4" /> Profil ({session.user?.name})
               </Link>
-              
-              <span style={{ fontSize: '12px', fontWeight: 500, color: '#64748b' }}>
-                {session.user?.name}
-              </span>
-              
               {session.user?.role === 'admin' && (
                 <Link
                   href="/admin"
-                  style={{
-                    padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
-                    background: 'rgba(34,211,160,0.1)', border: '1px solid rgba(34,211,160,0.2)',
-                    color: '#22d3a0', textDecoration: 'none',
-                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-primary font-semibold hover:bg-primary/10"
                 >
-                  Admin
+                  Admin Dashboard
                 </Link>
               )}
-              
               <button
-                onClick={() => signOut()}
-                style={{
-                  padding: '7px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 600,
-                  background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.2)',
-                  color: '#f87171', cursor: 'pointer', fontFamily: 'inherit',
+                onClick={() => {
+                  signOut();
+                  setMobileMenuOpen(false);
                 }}
+                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-rose-500 hover:bg-rose-500/10 font-medium text-left"
               >
-                Logout
+                <LogOut className="w-4 h-4" /> Keluar
               </button>
             </>
           ) : (
             <>
               <Link
                 href="/login"
-                style={{ fontSize: '13px', fontWeight: 500, color: '#64748b', textDecoration: 'none' }}
-              >
-                Masuk
-              </Link>
-              <button
-                onClick={() => router.push('/register')}
-                style={{
-                  padding: '7px 18px', borderRadius: '8px', fontSize: '13px', fontWeight: 700,
-                  background: '#22d3a0', color: '#0b1120', border: 'none', cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                Mulai
-              </button>
-            </>
-          )}
-
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="Kajiin-mobile-btn"
-            style={{
-              background: 'none', border: 'none', color: '#f1f5f9',
-              fontSize: '22px', cursor: 'pointer', display: 'none',
-            }}
-            aria-label="Menu"
-          >
-            {mobileMenuOpen ? '✕' : '☰'}
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
-        <div style={{
-          position: 'absolute', top: '62px', left: 0, right: 0,
-          background: '#0b1120', borderBottom: '1px solid rgba(255,255,255,0.06)',
-          padding: '16px 32px', display: 'flex', flexDirection: 'column', gap: '12px',
-          zIndex: 19, backdropFilter: 'blur(12px)',
-        }}>
-          {navLinks.map(link => {
-            const path = linkMap[link];
-            return (
-              <Link
-                key={link}
-                href={path}
                 onClick={() => setMobileMenuOpen(false)}
-                style={{
-                  padding: '10px 0', fontSize: '15px', fontWeight: 500,
-                  color: '#94a3b8', textDecoration: 'none',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                }}
+                className="block px-3 py-2.5 rounded-xl text-foreground/90 hover:bg-primary/10 font-medium"
               >
-                {link}
-              </Link>
-            );
-          })}
-          
-          {/* Profile di Mobile Menu */}
-          {session && (
-            <Link
-              href="/profile"
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                padding: '10px 0', fontSize: '15px', fontWeight: 500,
-                color: '#94a3b8', textDecoration: 'none',
-                borderBottom: '1px solid rgba(255,255,255,0.06)',
-              }}
-            >
-              Profile
-            </Link>
-          )}
-          
-          <hr style={{ borderColor: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
-          
-          {!session ? (
-            <>
-              <Link href="/login" onClick={() => setMobileMenuOpen(false)} style={{ padding: '10px 0', color: '#94a3b8', textDecoration: 'none' }}>
                 Masuk
               </Link>
-              <button onClick={() => { router.push('/register'); setMobileMenuOpen(false); }} style={{ padding: '10px 0', background: 'none', border: 'none', color: '#22d3a0', textAlign: 'left', fontSize: '15px', cursor: 'pointer' }}>
-                Mulai
-              </button>
-            </>
-          ) : (
-            <>
-              {session.user?.role === 'admin' && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{
-                    padding: '10px 0', fontSize: '15px', fontWeight: 500,
-                    color: '#22d3a0', textDecoration: 'none',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  }}
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-              <button
-                onClick={() => { signOut(); setMobileMenuOpen(false); }}
-                style={{
-                  padding: '10px 0', fontSize: '15px', fontWeight: 500,
-                  color: '#f87171', textDecoration: 'none', textAlign: 'left',
-                  cursor: 'pointer', background: 'none', border: 'none',
-                  width: '100%',
-                }}
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block px-3 py-2.5 rounded-xl bg-primary text-white font-semibold text-center"
               >
-                Logout
-              </button>
+                Mulai Sekarang
+              </Link>
             </>
           )}
         </div>
       )}
-
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .Kajiin-desktop-menu {
-            display: none !important;
-          }
-          .Kajiin-mobile-btn {
-            display: block !important;
-          }
-          nav {
-            padding: 0 16px !important;
-          }
-        }
-      `}</style>
-    </>
+    </nav>
   );
 }

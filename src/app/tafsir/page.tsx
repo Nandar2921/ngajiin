@@ -96,29 +96,29 @@ export default function TafsirListPage() {
       'Al-Misbah': 'text-orange-400 bg-orange-500/10 border-orange-500/20',
       'Al-Azhar': 'text-pink-400 bg-pink-500/10 border-pink-500/20',
     };
-    return colorMap[sourceName] || 'text-gray-400 bg-gray-500/10 border-gray-500/20';
+    return colorMap[sourceName] || 'text-muted-foreground bg-muted border-border';
   };
 
   if (loading && currentPage === 1) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">Memuat tafsir...</p>
+          <p className="text-muted-foreground">Memuat tafsir...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-emerald-500 mb-2">
             📚 Kumpulan Tafsir
           </h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             {total.toLocaleString()} tafsir dari berbagai sumber
           </p>
         </div>
@@ -127,14 +127,14 @@ export default function TafsirListPage() {
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="flex-1 flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Cari tafsir (contoh: surat, kata kunci)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white placeholder:text-gray-600"
+                className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl focus:outline-none focus:border-emerald-500 text-foreground placeholder:text-muted-foreground/60"
               />
             </div>
             <button
@@ -149,8 +149,8 @@ export default function TafsirListPage() {
         {/* Filter Sumber Tafsir */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <Filter className="w-4 h-4 text-gray-500" />
-            <span className="text-sm text-gray-400">Filter Sumber Tafsir:</span>
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">Filter Sumber Tafsir:</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {sources.map((source) => (
@@ -160,7 +160,7 @@ export default function TafsirListPage() {
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
                   selectedSource === source.id
                     ? 'bg-emerald-600 text-white shadow-md'
-                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/70'
                 }`}
               >
                 {source.name}
@@ -187,17 +187,17 @@ export default function TafsirListPage() {
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+              className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 disabled:hover:bg-muted transition"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-muted-foreground">
               Halaman {currentPage} dari {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+              className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 disabled:hover:bg-muted transition"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -208,7 +208,7 @@ export default function TafsirListPage() {
         {tafsirList.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">📭</div>
-            <p className="text-gray-500">Tidak ada tafsir ditemukan</p>
+            <p className="text-muted-foreground">Tidak ada tafsir ditemukan</p>
             {(searchTerm || selectedSource !== 'all') && (
               <button
                 onClick={handleReset}
@@ -222,7 +222,7 @@ export default function TafsirListPage() {
           <div className="space-y-4">
             {tafsirList.map((tafsir) => (
               <Link href={`/tafsir/${tafsir.id}`} key={tafsir.id}>
-                <div className="group block bg-gray-900/30 border border-white/5 rounded-xl p-5 hover:bg-gray-900/50 hover:border-emerald-500/30 transition-all duration-200 cursor-pointer">
+                <div className="group block bg-card/70 border border-border/60 rounded-xl p-5 hover:bg-card hover:border-emerald-500/30 transition-all duration-200 cursor-pointer">
                   <div className="flex justify-between items-start mb-3 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       <BookOpen className="w-4 h-4 text-emerald-500" />
@@ -234,13 +234,13 @@ export default function TafsirListPage() {
                       {tafsir.source}
                     </span>
                   </div>
-                  <div className="text-right text-sm font-arabic mb-2 text-gray-400">
+                  <div className="text-right text-sm font-arabic mb-2 text-muted-foreground">
                     {tafsir.arabic?.substring(0, 100)}...
                   </div>
-                  <div className="text-gray-400 leading-relaxed text-sm line-clamp-3">
+                  <div className="text-muted-foreground leading-relaxed text-sm line-clamp-3">
                     {tafsir.content.substring(0, 200)}...
                   </div>
-                  <div className="mt-3 text-xs text-gray-600">
+                  <div className="mt-3 text-xs text-muted-foreground/60">
                     {tafsir.translation?.substring(0, 80)}...
                   </div>
                 </div>
@@ -255,17 +255,17 @@ export default function TafsirListPage() {
             <button
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+              className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 disabled:hover:bg-muted transition"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <span className="text-sm text-gray-400">
+            <span className="text-sm text-muted-foreground">
               Halaman {currentPage} dari {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 disabled:hover:bg-gray-800 transition"
+              className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 disabled:hover:bg-muted transition"
             >
               <ChevronRight className="w-5 h-5" />
             </button>

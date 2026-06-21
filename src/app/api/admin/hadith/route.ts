@@ -1,48 +1,66 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth.config'; // ✅ IMPORT
-import { pool } from '@/lib/pg'; // ✅ PAKAI POOL TERPUSAT
+import { pool } from '@/lib/pg';
+import { authOptions } from '@/lib/auth.config';
 
 export async function POST(request: Request) {
-  // ✅ TAMBAHKAN AUTH CHECK
+  // [SECURITY FIX] Endpoint ini sebelumnya tidak ada pengecekan auth sama
+  // sekali — siapapun bisa menambah data hadits tanpa login. Sekarang wajib admin.
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'admin') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const client = await pool.connect();
   try {
     const body = await request.json();
-    const { bookId, number, arabic, narrator, source, chapter } = body;
+    const { bookId, number, arabic, translation, narrator, grade, reference } = body;
 
-    // ✅ HAPUS translation, grade, reference - sudah dipindah ke tabel terpisah
-    const result = await pool.query(
-      `INSERT INTO hadiths (book_id, number, chapter, arabic, narrator, source) 
-       VALUES ($1, $2, $3, $4, $5, $6) 
+    if (!bookId || !number || !arabic) {
+      return NextResponse.json({ error: 'Kitab, nomor, dan teks Arab wajib diisi' }, { status: 400 });
+    }
+
+    // [FIX] Sebelumnya INSERT langsung ke kolom hadiths.translation/grade/reference
+    // yang sudah tidak ada sejak migration 0003 (skema dinormalisasi ke tabel
+    // hadith_translations & hadith_gradings). Query lama selalu gagal (500).
+    await client.query('BEGIN');
+
+    const hadithResult = await client.query(
+      `INSERT INTO hadiths (book_id, number, arabic, narrator)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [bookId, number, chapter || null, arabic, narrator, source]
+      [bookId, number, arabic, narrator || null]
     );
+    const hadith = hadithResult.rows[0];
 
-    // Jika ada translation, simpan ke hadith_translations
-    if (body.translation) {
-      await pool.query(
-        `INSERT INTO hadith_translations (hadith_id, language, translator, text, source)
-         VALUES ($1, 'id', $2, $3, $4)`,
-        [result.rows[0].id, body.translator || 'Unknown', body.translation, body.translationSource || null]
+    if (translation) {
+      await client.query(
+        `INSERT INTO hadith_translations (hadith_id, language, text)
+         VALUES ($1, 'id', $2)`,
+        [hadith.id, translation]
       );
     }
 
-    // Jika ada grading, simpan ke hadith_gradings
-    if (body.grade) {
-      await pool.query(
+    if (grade) {
+      await client.query(
         `INSERT INTO hadith_gradings (hadith_id, scholar, grade, reference)
-         VALUES ($1, $2, $3, $4)`,
-        [result.rows[0].id, body.scholar || 'Unknown', body.grade, body.reference || null]
+         VALUES ($1, 'Admin', $2, $3)`,
+        [hadith.id, grade, reference || null]
       );
     }
 
-    return NextResponse.json(result.rows[0], { status: 201 });
-  } catch (error) {
+    await client.query('COMMIT');
+
+    return NextResponse.json({ ...hadith, translation, grade, reference }, { status: 201 });
+  } catch (error: any) {
+    await client.query('ROLLBACK');
     console.error('Error creating hadith:', error);
+    // Konflik unique(book_id, number) -> pesan yang lebih jelas dari pesan generik
+    if (error?.code === '23505') {
+      return NextResponse.json({ error: 'Nomor hadits untuk kitab ini sudah ada' }, { status: 409 });
+    }
     return NextResponse.json({ error: 'Failed to create hadith' }, { status: 500 });
+  } finally {
+    client.release();
   }
 }

@@ -42,10 +42,10 @@ export default function HadithDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">Memuat hadits...</p>
+          <p className="text-muted-foreground">Memuat hadits...</p>
         </div>
       </div>
     );
@@ -53,10 +53,10 @@ export default function HadithDetailPage() {
 
   if (!hadith) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="text-5xl mb-4">📭</div>
-          <p className="text-gray-500 mb-4">Hadits tidak ditemukan</p>
+          <p className="text-muted-foreground mb-4">Hadits tidak ditemukan</p>
           <Link href="/hadith" className="text-emerald-500 hover:text-emerald-400">
             ← Kembali ke Daftar Hadits
           </Link>
@@ -68,7 +68,7 @@ export default function HadithDetailPage() {
   const hasSanad = hadith.sanad && hadith.sanad.length > 0;
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <Link 
           href="/hadith" 
@@ -77,7 +77,7 @@ export default function HadithDetailPage() {
           <ChevronLeft className="w-4 h-4" /> Kembali ke Daftar Hadits
         </Link>
         
-        <div className="bg-gray-900/30 border border-white/10 rounded-xl overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
             <div className="flex justify-between items-center flex-wrap gap-2">
@@ -94,7 +94,7 @@ export default function HadithDetailPage() {
           <div className="p-6">
             {/* ===== MATAN (Teks Arab TANPA Sanad) ===== */}
             <div className="bg-emerald-950/30 border border-emerald-500/20 rounded-xl p-6 mb-6">
-              <div className="text-right text-2xl md:text-3xl font-arabic leading-loose text-gray-200">
+              <div className="text-right text-2xl md:text-3xl font-arabic leading-loose text-foreground">
                 {hadith.matan}
               </div>
             </div>
@@ -104,25 +104,25 @@ export default function HadithDetailPage() {
               <h2 className="text-lg font-semibold text-emerald-500 mb-3 flex items-center gap-2">
                 <BookOpen className="w-5 h-5" /> Terjemahan
               </h2>
-              <div className="text-gray-300 leading-relaxed">
+              <div className="text-foreground/80 leading-relaxed">
                 {hadith.translation}
               </div>
             </div>
             
             {/* Informasi Tambahan */}
-            <div className="border-t border-white/10 pt-5 space-y-3">
+            <div className="border-t border-border pt-5 space-y-3">
               <div className="flex flex-wrap gap-5 text-sm">
                 <div className="flex items-center gap-2">
-                  <User className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-500">Perawi:</span>
-                  <span className="text-gray-300 font-medium">
+                  <User className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Perawi:</span>
+                  <span className="text-foreground/80 font-medium">
                     {hadith.narrator || '-'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-gray-500" />
-                  <span className="text-gray-500">Referensi:</span>
-                  <span className="text-gray-300 font-medium">
+                  <Info className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-muted-foreground">Referensi:</span>
+                  <span className="text-foreground/80 font-medium">
                     {hadith.reference || '-'}
                   </span>
                 </div>
@@ -130,7 +130,7 @@ export default function HadithDetailPage() {
 
               {/* ===== SANAD ===== */}
               {hasSanad && (
-                <div className="mt-4 pt-3 border-t border-white/10">
+                <div className="mt-4 pt-3 border-t border-border">
                   <button
                     onClick={() => setShowSanad(!showSanad)}
                     className="text-emerald-500 hover:text-emerald-400 text-sm flex items-center gap-1 transition"
@@ -140,12 +140,12 @@ export default function HadithDetailPage() {
                   </button>
                   
                   {showSanad && (
-                    <div className="mt-3 p-4 bg-gray-900/50 border border-white/10 rounded-lg">
+                    <div className="mt-3 p-4 bg-card border border-border rounded-lg">
                       <h3 className="text-sm font-semibold text-emerald-500 mb-2">Sanad Hadits:</h3>
-                      <div className="text-right font-arabic text-base leading-loose text-gray-300">
+                      <div className="text-right font-arabic text-base leading-loose text-foreground/80">
                         {hadith.sanad}
                       </div>
-                      <p className="text-xs text-gray-500 mt-3 italic">
+                      <p className="text-xs text-muted-foreground mt-3 italic">
                         *Sanad adalah rantai periwayat yang menyampaikan hadits ini dari generasi ke generasi
                       </p>
                     </div>
@@ -156,7 +156,7 @@ export default function HadithDetailPage() {
           </div>
           
           {/* Navigation */}
-          <div className="border-t border-white/10 px-6 py-4 bg-gray-900/20 flex justify-between items-center">
+          <div className="border-t border-border px-6 py-4 bg-muted/40 flex justify-between items-center">
             {hadith.number > 1 ? (
               <Link 
                 href={`/hadith/${hadith.id - 1}`}
@@ -170,7 +170,7 @@ export default function HadithDetailPage() {
             
             <Link 
               href="/hadith"
-              className="text-gray-500 hover:text-gray-400 text-sm transition"
+              className="text-muted-foreground hover:text-muted-foreground/70 text-sm transition"
             >
               Daftar
             </Link>

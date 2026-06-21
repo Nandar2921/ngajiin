@@ -1,19 +1,18 @@
 import { NextResponse } from 'next/server';
-import { pool } from '@/lib/pg';
+import { Pool } from 'pg';
 
-// ✅ PAKAI ENV VAR
-const EMBEDDING_API_URL = process.env.EMBEDDING_API_URL || 'http://localhost:8000';
-
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false, // Required for Neon
+  },
+});
 async function getEmbedding(text: string): Promise<number[]> {
-  const response = await fetch(`${EMBEDDING_API_URL}/embed`, {
+  const response = await fetch('http://localhost:8000/embed', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text }),
   });
-  
-  if (!response.ok) {
-    throw new Error(`Embedding service error: ${response.status}`);
-  }
   
   const data = await response.json();
   return data.embedding;
@@ -23,7 +22,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get('q') || '';
   const limit = parseInt(searchParams.get('limit') || '20');
-  const threshold = parseFloat(searchParams.get('threshold') || '0.5');
+  const threshold = parseFloat(searchParams.get('threshold') || '0.5'); // Turunkan threshold untuk IndoBERT
 
   if (!q || q.length < 2) {
     return NextResponse.json({ results: [] });
@@ -53,14 +52,6 @@ export async function GET(request: Request) {
 
   } catch (error) {
     console.error('Semantic search error:', error);
-    // ✅ JANGAN SILENT ERROR
-    return NextResponse.json(
-      { 
-        error: 'Semantic search failed', 
-        details: error instanceof Error ? error.message : 'Unknown error',
-        results: [] 
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Semantic search failed' }, { status: 500 });
   }
 }

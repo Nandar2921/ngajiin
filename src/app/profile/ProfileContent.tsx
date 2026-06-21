@@ -104,7 +104,7 @@ export default function ProfileContent() {
   // ===== SETTINGS STATE =====
   const [selectedReciter, setSelectedReciter] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('Kajiin-selected-reciter');
+      const saved = localStorage.getItem('sikaji-selected-reciter');
       if (saved) {
         const found = reciters.find(r => r.id === saved);
         if (found) return found;
@@ -114,19 +114,19 @@ export default function ProfileContent() {
   });
   const [autoNext, setAutoNext] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('Kajiin-auto-next') !== 'false';
+      return localStorage.getItem('sikaji-auto-next') !== 'false';
     }
     return true;
   });
   const [language, setLanguage] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('Kajiin-language') || 'id';
+      return localStorage.getItem('sikaji-language') || 'id';
     }
     return 'id';
   });
   const [notifications, setNotifications] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('Kajiin-notifications') !== 'false';
+      return localStorage.getItem('sikaji-notifications') !== 'false';
     }
     return true;
   });
@@ -159,7 +159,7 @@ export default function ProfileContent() {
 
     if (session?.user) {
       setEditName(session.user.name || '');
-      const savedImage = localStorage.getItem('Kajiin-profile-image');
+      const savedImage = localStorage.getItem('sikaji-profile-image');
       if (savedImage) setProfileImage(savedImage);
       fetchData();
     }
@@ -212,7 +212,7 @@ export default function ProfileContent() {
     reader.onload = (event) => {
       const imageData = event.target?.result as string;
       setProfileImage(imageData);
-      localStorage.setItem('Kajiin-profile-image', imageData);
+      localStorage.setItem('sikaji-profile-image', imageData);
       setEditSuccess('Foto profil berhasil diupdate');
       setTimeout(() => setEditSuccess(null), 3000);
     };
@@ -221,7 +221,7 @@ export default function ProfileContent() {
 
   const removeProfileImage = () => {
     setProfileImage(null);
-    localStorage.removeItem('Kajiin-profile-image');
+    localStorage.removeItem('sikaji-profile-image');
     setEditSuccess('Foto profil dihapus');
     setTimeout(() => setEditSuccess(null), 3000);
   };
@@ -340,24 +340,24 @@ export default function ProfileContent() {
     const reciter = reciters.find(r => r.id === reciterId);
     if (reciter) {
       setSelectedReciter(reciter);
-      localStorage.setItem('Kajiin-selected-reciter', reciter.id);
+      localStorage.setItem('sikaji-selected-reciter', reciter.id);
     }
   };
 
   const handleAutoNextChange = (value: boolean) => {
     setAutoNext(value);
-    localStorage.setItem('Kajiin-auto-next', String(value));
+    localStorage.setItem('sikaji-auto-next', String(value));
   };
 
   const handleLanguageChange = (code: string) => {
     setLanguage(code);
-    localStorage.setItem('Kajiin-language', code);
+    localStorage.setItem('sikaji-language', code);
     window.location.reload();
   };
 
   const handleNotificationsChange = (value: boolean) => {
     setNotifications(value);
-    localStorage.setItem('Kajiin-notifications', String(value));
+    localStorage.setItem('sikaji-notifications', String(value));
   };
 
   const handleDeleteAccount = async () => {
@@ -375,7 +375,7 @@ export default function ProfileContent() {
 
   if (!mounted || status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-12 w-12 text-emerald-500 animate-spin" />
       </div>
     );
@@ -394,7 +394,7 @@ export default function ProfileContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         {/* Header */}
         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 text-sm sm:text-base">
@@ -402,8 +402,8 @@ export default function ProfileContent() {
             <Home className="w-4 h-4" /> 
             <span>{t('nav.home')}</span>
           </Link>
-          <span className="text-gray-700">/</span>
-          <span className="text-white font-medium">{t('profile.title')}</span>
+          <span className="text-muted-foreground/70">/</span>
+          <span className="text-foreground font-medium">{t('profile.title')}</span>
         </div>
 
         {/* Error/Success Messages */}
@@ -457,15 +457,15 @@ export default function ProfileContent() {
             
             <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">
+                <h1 className="text-lg sm:text-2xl font-bold text-foreground truncate">
                   {session.user?.name}
                 </h1>
                 <span className="text-xs px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded-full border border-emerald-500/30 capitalize">
                   {session.user?.role || 'user'}
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-gray-400 truncate">{session.user?.email}</p>
-              <p className="text-xs text-gray-500 mt-0.5 sm:mt-1">
+              <p className="text-sm sm:text-base text-muted-foreground truncate">{session.user?.email}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 sm:mt-1">
                 {t('profile.memberSince')} {new Date().toLocaleDateString('id-ID')}
               </p>
             </div>
@@ -481,24 +481,24 @@ export default function ProfileContent() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-white/10">
+          <div className="grid grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-border">
             <div className="text-center">
               <div className="text-lg sm:text-2xl font-bold text-emerald-500">{stats.totalBookmarks}</div>
-              <div className="text-[10px] sm:text-xs text-gray-500">{t('profile.totalBookmarks')}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">{t('profile.totalBookmarks')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg sm:text-2xl font-bold text-emerald-500">{stats.totalSearches}</div>
-              <div className="text-[10px] sm:text-xs text-gray-500">{t('profile.totalSearches')}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">{t('profile.totalSearches')}</div>
             </div>
             <div className="text-center">
               <div className="text-lg sm:text-2xl font-bold text-emerald-500">{stats.totalRead}</div>
-              <div className="text-[10px] sm:text-xs text-gray-500">{t('profile.totalRead')}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground">{t('profile.totalRead')}</div>
             </div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-0.5 sm:gap-1 border-b border-white/10 mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-0.5 sm:gap-1 border-b border-border mb-4 sm:mb-6 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -506,13 +506,13 @@ export default function ProfileContent() {
               className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition whitespace-nowrap ${
                 activeTab === tab.key
                   ? 'border-b-2 border-emerald-500 text-emerald-500'
-                  : 'text-gray-500 hover:text-gray-300'
+                  : 'text-muted-foreground hover:text-foreground/80'
               }`}
             >
               <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden xs:inline">{tab.label}</span>
               {tab.count !== undefined && (
-                <span className="text-[10px] sm:text-xs bg-gray-800 px-1 py-0.5 rounded-full">
+                <span className="text-[10px] sm:text-xs bg-muted text-muted-foreground px-1 py-0.5 rounded-full">
                   {tab.count}
                 </span>
               )}
@@ -525,31 +525,31 @@ export default function ProfileContent() {
           <div className="space-y-4">
             {/* Edit Profile Form */}
             {isEditing ? (
-              <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <Edit3 className="w-5 h-5 text-emerald-500" />
                   {t('profile.editProfile')}
                 </h3>
                 <form onSubmit={handleUpdateProfile} className="space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('profile.name')}</label>
+                    <label className="block text-sm text-muted-foreground mb-1">{t('profile.name')}</label>
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-emerald-500 focus:outline-none text-sm"
+                      className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-foreground focus:border-emerald-500 focus:outline-none text-sm"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('profile.email')}</label>
+                    <label className="block text-sm text-muted-foreground mb-1">{t('profile.email')}</label>
                     <input
                       type="email"
                       value={session.user?.email || ''}
                       disabled
-                      className="w-full px-4 py-2.5 bg-gray-800/30 border border-gray-700 rounded-xl text-gray-500 cursor-not-allowed text-sm"
+                      className="w-full px-4 py-2.5 bg-muted/70 border border-border rounded-xl text-muted-foreground cursor-not-allowed text-sm"
                     />
-                    <p className="text-xs text-gray-500 mt-1">{t('profile.email')} tidak dapat diubah</p>
+                    <p className="text-xs text-muted-foreground mt-1">{t('profile.email')} tidak dapat diubah</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3">
                     <button
@@ -566,7 +566,7 @@ export default function ProfileContent() {
                         setIsEditing(false);
                         setEditName(session.user?.name || '');
                       }}
-                      className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-xl text-white transition text-sm"
+                      className="px-6 py-2.5 bg-muted hover:bg-muted/70 rounded-xl text-foreground transition text-sm"
                     >
                       {t('common.cancel')}
                     </button>
@@ -574,26 +574,26 @@ export default function ProfileContent() {
                 </form>
               </div>
             ) : (
-              <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                   <User className="w-5 h-5 text-emerald-500" />
                   {t('profile.accountInfo')}
                 </h3>
                 <div className="space-y-3 text-sm">
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                    <span className="text-gray-500">{t('profile.name')}</span>
-                    <span className="text-white font-medium">{session.user?.name}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                    <span className="text-muted-foreground">{t('profile.name')}</span>
+                    <span className="text-foreground font-medium">{session.user?.name}</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                    <span className="text-gray-500">{t('profile.email')}</span>
-                    <span className="text-white font-medium">{session.user?.email}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                    <span className="text-muted-foreground">{t('profile.email')}</span>
+                    <span className="text-foreground font-medium">{session.user?.email}</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                    <span className="text-gray-500">{t('profile.role')}</span>
+                  <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                    <span className="text-muted-foreground">{t('profile.role')}</span>
                     <span className="text-emerald-400 capitalize">{session.user?.role}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:justify-between py-2 gap-1">
-                    <span className="text-gray-500">{t('profile.status')}</span>
+                    <span className="text-muted-foreground">{t('profile.status')}</span>
                     <span className="text-green-400">✅ {t('profile.active')}</span>
                   </div>
                 </div>
@@ -601,7 +601,7 @@ export default function ProfileContent() {
             )}
 
             {/* ===== UBAH PASSWORD ===== */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
               <button
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
                 className="flex items-center justify-between w-full text-left"
@@ -610,39 +610,39 @@ export default function ProfileContent() {
                   <Key className="w-5 h-5" />
                   <span className="font-medium text-sm sm:text-base">🔒 {t('profile.changePassword')}</span>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-gray-500 transition-transform ${showPasswordForm ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showPasswordForm ? 'rotate-180' : ''}`} />
               </button>
               
               {showPasswordForm && (
                 <form onSubmit={handleChangePassword} className="mt-4 space-y-4">
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('profile.oldPassword')}</label>
+                    <label className="block text-sm text-muted-foreground mb-1">{t('profile.oldPassword')}</label>
                     <div className="relative">
                       <input
                         type={showOldPassword ? 'text' : 'password'}
                         value={oldPassword}
                         onChange={(e) => setOldPassword(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-emerald-500 focus:outline-none pr-10 text-sm"
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-foreground focus:border-emerald-500 focus:outline-none pr-10 text-sm"
                         required
                         placeholder={t('profile.oldPassword')}
                       />
                       <button
                         type="button"
                         onClick={() => setShowOldPassword(!showOldPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground/80"
                       >
                         {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('profile.newPassword')}</label>
+                    <label className="block text-sm text-muted-foreground mb-1">{t('profile.newPassword')}</label>
                     <div className="relative">
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-emerald-500 focus:outline-none pr-10 text-sm"
+                        className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-foreground focus:border-emerald-500 focus:outline-none pr-10 text-sm"
                         required
                         minLength={6}
                         placeholder={t('auth.passwordMin')}
@@ -650,19 +650,19 @@ export default function ProfileContent() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground/80"
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm text-gray-400 mb-1">{t('profile.confirmPassword')}</label>
+                    <label className="block text-sm text-muted-foreground mb-1">{t('profile.confirmPassword')}</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-4 py-2.5 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-emerald-500 focus:outline-none text-sm"
+                      className="w-full px-4 py-2.5 bg-muted border border-border rounded-xl text-foreground focus:border-emerald-500 focus:outline-none text-sm"
                       required
                       placeholder={t('profile.confirmPassword')}
                     />
@@ -695,25 +695,25 @@ export default function ProfileContent() {
             {bookmarks.length === 0 ? (
               <div className="text-center py-12 sm:py-16">
                 <div className="text-4xl sm:text-5xl mb-4">🔖</div>
-                <p className="text-gray-500 mb-4 text-sm sm:text-base">{t('common.noData')}</p>
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t('common.noData')}</p>
                 <Link href="/search" className="text-emerald-500 hover:text-emerald-400 text-sm">
                   {t('search.title')} →
                 </Link>
               </div>
             ) : (
               bookmarks.map((item) => (
-                <div key={item.id} className="bg-gray-900/30 border border-white/5 rounded-xl p-3 sm:p-4 hover:bg-gray-900/50 transition group relative">
+                <div key={item.id} className="bg-card/70 border border-border/60 rounded-xl p-3 sm:p-4 hover:bg-card transition group relative">
                   <Link href={`/quran/${item.surah}/${item.ayah}`} className="block pr-10 sm:pr-12">
-                    <div className="text-white font-arabic text-lg sm:text-xl text-right mb-1">
+                    <div className="text-foreground font-arabic text-lg sm:text-xl text-right mb-1">
                       {item.arabic}
                     </div>
-                    <div className="text-gray-300 text-xs sm:text-sm line-clamp-2">
+                    <div className="text-foreground/80 text-xs sm:text-sm line-clamp-2">
                       {item.translation}
                     </div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="text-xs text-muted-foreground mt-1">
                       QS. {item.surah}:{item.ayah}
                     </div>
-                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-2">
+                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-2">
                       <Calendar className="w-3 h-3" />
                       {new Date(item.createdAt).toLocaleDateString('id-ID')}
                     </div>
@@ -746,7 +746,7 @@ export default function ProfileContent() {
             {history.length === 0 ? (
               <div className="text-center py-12 sm:py-16">
                 <div className="text-4xl sm:text-5xl mb-4">🔍</div>
-                <p className="text-gray-500 mb-4 text-sm sm:text-base">{t('common.noData')}</p>
+                <p className="text-muted-foreground mb-4 text-sm sm:text-base">{t('common.noData')}</p>
                 <Link href="/search" className="text-emerald-500 hover:text-emerald-400 text-sm">
                   {t('search.title')} →
                 </Link>
@@ -758,20 +758,20 @@ export default function ProfileContent() {
                   href={`/search?q=${encodeURIComponent(item.keyword)}`}
                   className="block"
                 >
-                  <div className="bg-gray-900/30 border border-white/5 rounded-xl p-3 sm:p-4 hover:bg-gray-900/50 transition">
+                  <div className="bg-card/70 border border-border/60 rounded-xl p-3 sm:p-4 hover:bg-card transition">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 min-w-0">
                         <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500 flex-shrink-0" />
                         <div className="min-w-0">
-                          <div className="text-white font-medium text-sm sm:text-base truncate">
+                          <div className="text-foreground font-medium text-sm sm:text-base truncate">
                             {item.keyword}
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-muted-foreground">
                             {new Date(item.created_at).toLocaleDateString('id-ID')}
                           </div>
                         </div>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-emerald-500 transition flex-shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-emerald-500 transition flex-shrink-0" />
                     </div>
                   </div>
                 </Link>
@@ -784,8 +784,8 @@ export default function ProfileContent() {
         {activeTab === 'settings' && (
           <div className="space-y-4">
             {/* Tema */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Moon className="w-5 h-5 text-purple-400" />
                 {t('profile.theme')}
               </h3>
@@ -795,7 +795,7 @@ export default function ProfileContent() {
                   className={`flex-1 py-3 rounded-xl border transition text-sm ${
                     theme === 'dark'
                       ? 'bg-purple-600 border-purple-500 text-white'
-                      : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:bg-gray-800'
+                      : 'bg-muted border-border text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   <Moon className="w-5 h-5 mx-auto mb-1" />
@@ -806,7 +806,7 @@ export default function ProfileContent() {
                   className={`flex-1 py-3 rounded-xl border transition text-sm ${
                     theme === 'light'
                       ? 'bg-purple-600 border-purple-500 text-white'
-                      : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:bg-gray-800'
+                      : 'bg-muted border-border text-muted-foreground hover:bg-muted'
                   }`}
                 >
                   <Sun className="w-5 h-5 mx-auto mb-1" />
@@ -816,15 +816,15 @@ export default function ProfileContent() {
             </div>
 
             {/* Qori Favorit */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Music className="w-5 h-5 text-purple-400" />
                 {t('quran.reciter')}
               </h3>
               <select
                 value={selectedReciter.id}
                 onChange={(e) => handleReciterChange(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl text-white focus:border-emerald-500 focus:outline-none text-sm"
+                className="w-full px-4 py-3 bg-muted border border-border rounded-xl text-foreground focus:border-emerald-500 focus:outline-none text-sm"
               >
                 {reciters.map((reciter) => (
                   <option key={reciter.id} value={reciter.id}>
@@ -832,24 +832,24 @@ export default function ProfileContent() {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-2">{t('quran.reciter')} akan digunakan untuk audio murottal</p>
+              <p className="text-xs text-muted-foreground mt-2">{t('quran.reciter')} akan digunakan untuk audio murottal</p>
             </div>
 
             {/* Auto-Next */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Volume2 className="w-5 h-5 text-purple-400" />
                 {t('quran.audio')}
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-white text-sm">{t('quran.autoNext')}</div>
-                  <div className="text-xs text-gray-500">{t('quran.autoNextDesc')}</div>
+                  <div className="text-foreground text-sm">{t('quran.autoNext')}</div>
+                  <div className="text-xs text-muted-foreground">{t('quran.autoNextDesc')}</div>
                 </div>
                 <button
                   onClick={() => handleAutoNextChange(!autoNext)}
                   className={`w-12 h-6 rounded-full transition ${
-                    autoNext ? 'bg-emerald-500' : 'bg-gray-700'
+                    autoNext ? 'bg-emerald-500' : 'bg-muted'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition ${
@@ -860,12 +860,12 @@ export default function ProfileContent() {
             </div>
 
             {/* ===== BAHASA ===== */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Languages className="w-5 h-5 text-purple-400" />
                 {t('profile.language')}
               </h3>
-              <p className="text-xs text-gray-500 mb-3">{t('profile.languageDesc')}</p>
+              <p className="text-xs text-muted-foreground mb-3">{t('profile.languageDesc')}</p>
               <div className="flex flex-wrap gap-2">
                 {languages.map((lang) => (
                   <button
@@ -874,7 +874,7 @@ export default function ProfileContent() {
                     className={`px-3 sm:px-4 py-2 rounded-xl border transition text-sm flex items-center gap-2 ${
                       language === lang.code
                         ? 'bg-emerald-600 border-emerald-500 text-white'
-                        : 'bg-gray-800/50 border-gray-700 text-gray-400 hover:bg-gray-800'
+                        : 'bg-muted border-border text-muted-foreground hover:bg-muted'
                     }`}
                   >
                     <span>{lang.flag}</span>
@@ -883,24 +883,24 @@ export default function ProfileContent() {
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mt-2">🌍 {t('profile.languageDesc')}</p>
+              <p className="text-xs text-muted-foreground mt-2">🌍 {t('profile.languageDesc')}</p>
             </div>
 
             {/* ===== NOTIFIKASI ===== */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <BellRing className="w-5 h-5 text-purple-400" />
                 {t('profile.notifications')}
               </h3>
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-white text-sm">{t('profile.notifications')}</div>
-                  <div className="text-xs text-gray-500">{t('profile.notificationsDesc')}</div>
+                  <div className="text-foreground text-sm">{t('profile.notifications')}</div>
+                  <div className="text-xs text-muted-foreground">{t('profile.notificationsDesc')}</div>
                 </div>
                 <button
                   onClick={() => handleNotificationsChange(!notifications)}
                   className={`w-12 h-6 rounded-full transition ${
-                    notifications ? 'bg-emerald-500' : 'bg-gray-700'
+                    notifications ? 'bg-emerald-500' : 'bg-muted'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full bg-white transition ${
@@ -911,27 +911,27 @@ export default function ProfileContent() {
             </div>
 
             {/* Tentang */}
-            <div className="bg-gray-900/30 border border-white/5 rounded-xl p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <div className="bg-card/70 border border-border/60 rounded-xl p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-purple-400" />
                 {t('profile.about')}
               </h3>
               <div className="space-y-3 text-sm">
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                  <span className="text-gray-500">{t('profile.about')}</span>
-                  <span className="text-white">Kajiin</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                  <span className="text-muted-foreground">{t('profile.about')}</span>
+                  <span className="text-foreground">KAJIIN</span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                  <span className="text-gray-500">{t('profile.version')}</span>
-                  <span className="text-white">1.0.0</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                  <span className="text-muted-foreground">{t('profile.version')}</span>
+                  <span className="text-foreground">1.0.0</span>
                 </div>
-                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-white/5 gap-1">
-                  <span className="text-gray-500">{t('profile.database')}</span>
-                  <span className="text-white">Neon PostgreSQL</span>
+                <div className="flex flex-col sm:flex-row sm:justify-between py-2 border-b border-border/60 gap-1">
+                  <span className="text-muted-foreground">{t('profile.database')}</span>
+                  <span className="text-foreground">Neon PostgreSQL</span>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:justify-between py-2 gap-1">
-                  <span className="text-gray-500">{t('profile.audioApi')}</span>
-                  <span className="text-white">EQuran.id</span>
+                  <span className="text-muted-foreground">{t('profile.audioApi')}</span>
+                  <span className="text-foreground">EQuran.id</span>
                 </div>
               </div>
             </div>
@@ -955,13 +955,13 @@ export default function ProfileContent() {
               <Shield className="w-5 h-5" />
               {t('profile.deleteConfirm')}
             </h2>
-            <p className="text-gray-400 text-sm mb-6">
+            <p className="text-muted-foreground text-sm mb-6">
               {t('profile.deleteWarning')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-3 bg-gray-800 rounded-xl text-white hover:bg-gray-700 transition text-sm"
+                className="flex-1 py-3 bg-muted rounded-xl text-foreground hover:bg-muted/70 transition text-sm"
               >
                 {t('common.cancel')}
               </button>

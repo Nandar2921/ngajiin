@@ -100,7 +100,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
   // 🔥 FIX: Load reciter dari localStorage
   const [selectedReciter, setSelectedReciter] = useState(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('Kajiin-selected-reciter');
+      const saved = localStorage.getItem('sikaji-selected-reciter');
       if (saved) {
         const found = reciters.find(r => r.id === saved);
         if (found) return found;
@@ -120,7 +120,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
     const reciter = reciters.find(r => r.id === reciterId);
     if (reciter) {
       setSelectedReciter(reciter);
-      localStorage.setItem('Kajiin-selected-reciter', reciter.id);
+      localStorage.setItem('sikaji-selected-reciter', reciter.id);
       setAudioState(prev => ({ ...prev, error: null }));
       hasAutoPlayed.current = false;
     }
@@ -162,6 +162,20 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
       }
     };
     checkBookmark();
+  }, [session, data?.verse]);
+
+  // [FITUR BARU] AUTO-SAVE PROGRESS BACA — tiap kali user (yang login) membuka
+  // sebuah ayat, posisi ini disimpan sebagai "terakhir dibaca" lewat
+  // /api/user/reading-progress. Ini yang membuat widget progress di homepage
+  // bisa selalu menunjukkan posisi terbaru. "Fire and forget" — kalau gagal
+  // (mis. offline) tidak mengganggu pengalaman baca.
+  useEffect(() => {
+    if (!session || !data?.verse) return;
+    fetch('/api/user/reading-progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ surah: data.verse.surah, ayah: data.verse.ayah }),
+    }).catch((err) => console.error('Gagal menyimpan progress baca:', err));
   }, [session, data?.verse]);
 
   // ===== TOGGLE BOOKMARK =====
@@ -479,10 +493,10 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-500">Memuat ayat...</p>
+          <p className="text-muted-foreground">Memuat ayat...</p>
         </div>
       </div>
     );
@@ -490,7 +504,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-500 mb-4">{error || 'Data tidak ditemukan'}</p>
           <Link href="/search" className="text-emerald-500 hover:underline">
@@ -504,7 +518,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
   const { verse, tafsir, navigation } = data;
 
   return (
-  <div className="min-h-screen bg-[#0b1120] text-gray-200">
+  <div className="min-h-screen bg-background text-foreground">
     <div className="max-w-4xl mx-auto px-4 py-6">
       {/* ===== HEADER ===== */}
       <div className="flex justify-between items-center mb-6">
@@ -516,7 +530,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
           >
             ← Beranda
           </Link>
-          <span className="text-gray-700">|</span>
+          <span className="text-muted-foreground/60">|</span>
           <Link 
             href={`/surah/${surahNum}`} 
             className="text-emerald-500 hover:text-emerald-400 text-sm inline-flex items-center gap-1 transition"
@@ -527,14 +541,14 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
         <div className="flex gap-2">
           <button
             onClick={copyToClipboard}
-            className="p-2 rounded-full hover:bg-white/5 transition"
+            className="p-2 rounded-full hover:bg-muted transition"
             title="Salin ayat"
           >
             {copied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
           </button>
           <button
             onClick={shareContent}
-            className="p-2 rounded-full hover:bg-white/5 transition"
+            className="p-2 rounded-full hover:bg-muted transition"
             title="Bagikan"
           >
             <Share2 className="w-5 h-5" />
@@ -542,8 +556,8 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
           <button
             onClick={toggleBookmark}
             disabled={isBookmarking}
-            className={`p-2 rounded-full hover:bg-white/5 transition ${
-              isBookmarked ? 'text-yellow-500' : 'text-gray-400 hover:text-yellow-500'
+            className={`p-2 rounded-full hover:bg-muted transition ${
+              isBookmarked ? 'text-yellow-500' : 'text-muted-foreground hover:text-yellow-500'
             } ${isBookmarking ? 'opacity-50 cursor-not-allowed' : ''}`}
             title={isBookmarked ? 'Hapus bookmark' : 'Simpan bookmark'}
           >
@@ -564,7 +578,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
           <h1 className="text-3xl font-bold text-emerald-500">
             {verse.surah_name}
           </h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Ayat ke-{verse.ayah}
           </p>
           {navigation.next && (
@@ -575,7 +589,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
         </div>
 
         {/* Arabic Text */}
-        <div className="bg-gray-900/50 rounded-2xl border border-white/10 p-8 mb-6">
+        <div className="bg-card rounded-2xl border border-border p-8 mb-6">
           <div className="text-right text-3xl font-arabic leading-loose">
             {verse.arabic}
           </div>
@@ -586,7 +600,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
           <h3 className="font-semibold text-emerald-500 mb-2">
             📖 Terjemahan
           </h3>
-          <p className="text-gray-300 leading-relaxed">
+          <p className="text-foreground/80 leading-relaxed">
             {verse.translation}
           </p>
         </div>
@@ -603,7 +617,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
             <select
               value={selectedReciter.id}
               onChange={(e) => handleReciterChange(e.target.value)}
-              className="px-3 py-1.5 text-sm bg-gray-800 border border-purple-500/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white"
+              className="px-3 py-1.5 text-sm bg-muted border border-purple-500/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-foreground"
             >
               {reciters.map((reciter) => (
                 <option key={reciter.id} value={reciter.id}>
@@ -629,7 +643,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
                 title="Ayat sebelumnya"
                 disabled={!navigation.prev}
               >
-                <SkipBack className={`w-5 h-5 ${navigation.prev ? 'text-purple-400' : 'text-gray-600'}`} />
+                <SkipBack className={`w-5 h-5 ${navigation.prev ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
               </button>
               
               <button
@@ -652,13 +666,13 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
                 title="Ayat berikutnya"
                 disabled={!navigation.next}
               >
-                <SkipForward className={`w-5 h-5 ${navigation.next ? 'text-purple-400' : 'text-gray-600'}`} />
+                <SkipForward className={`w-5 h-5 ${navigation.next ? 'text-purple-400' : 'text-muted-foreground/50'}`} />
               </button>
             </div>
 
             {/* Progress Bar */}
             <div className="flex items-center gap-3">
-              <span className="text-xs text-gray-500 min-w-[36px]">
+              <span className="text-xs text-muted-foreground min-w-[36px]">
                 {formatTime(audioState.currentTime)}
               </span>
               <input
@@ -676,7 +690,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
                 className="flex-1 h-1.5 rounded-lg appearance-none bg-purple-800 accent-purple-600 cursor-pointer"
                 disabled={!audioState.duration}
               />
-              <span className="text-xs text-gray-500 min-w-[36px]">
+              <span className="text-xs text-muted-foreground min-w-[36px]">
                 {formatTime(audioState.duration)}
               </span>
             </div>
@@ -720,7 +734,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
             
             {showTafsir && (
               <div className="bg-purple-950/30 rounded-2xl border border-purple-500/20 p-6 max-h-[400px] overflow-y-auto">
-                <div className="text-gray-300 leading-relaxed text-sm whitespace-pre-line">
+                <div className="text-foreground/80 leading-relaxed text-sm whitespace-pre-line">
                   {tafsir[0].content}
                 </div>
               </div>
@@ -733,7 +747,7 @@ export default function VerseDetailClient({ surah, ayah }: VerseDetailClientProp
           {navigation.prev ? (
             <button
               onClick={() => goTo(navigation.prev!.surah, navigation.prev!.ayah)}
-              className="flex items-center gap-2 px-6 py-3 bg-gray-800 rounded-xl hover:bg-gray-700 transition"
+              className="flex items-center gap-2 px-6 py-3 bg-muted rounded-xl hover:bg-muted/70 transition"
             >
               <ChevronLeft className="w-5 h-5" />
               {navigation.prev.surah}:{navigation.prev.ayah}

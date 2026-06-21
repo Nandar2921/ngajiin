@@ -1,17 +1,25 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { pool } from '@/lib/pg';
 import { authOptions } from '@/lib/auth.config';
-import { pool } from '@/lib/pg'; // ✅ PAKAI POOL TERPUSAT
+
+// [CRITICAL FIX] Route ini sebelumnya membuat koneksi sendiri ke
+// localhost:5433 (Postgres Docker lokal) dengan kredensial hardcoded.
+// Di production (Vercel) tidak ada Postgres di localhost, jadi SETIAP
+// request ke endpoint ini (GET/POST/DELETE) selalu gagal connect dan
+// return 500 — Admin CRUD Tafsir tidak pernah benar-benar berfungsi di
+// production. Sekarang pakai pool terpusat (@/lib/pg) yang sudah benar
+// terhubung ke Neon lewat DATABASE_URL.
 
 // GET: Ambil semua tafsir
 export async function GET() {
-  // ✅ SUDAH ADA AUTH, BAIK
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const result = await pool.query(`
       SELECT t.*, q.surah, q.ayah, q.translation
       FROM tafsir t
@@ -29,19 +37,22 @@ export async function GET() {
 
 // POST: Tambah tafsir baru
 export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { verseId, source, content } = body;
 
+    // Validasi input
     if (!verseId || !source || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Cek apakah verseId ada di quran_verses
     const verseCheck = await pool.query(
       'SELECT id FROM quran_verses WHERE id = $1',
       [verseId]
@@ -51,14 +62,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Verse not found' }, { status: 404 });
     }
 
-    const result = await pool.query(
-      `INSERT INTO tafsir (verse_id, source, content) 
-       VALUES ($1, $2, $3) 
-       ON CONFLICT (verse_id, source) DO UPDATE SET content = EXCLUDED.content
-       RETURNING *`,
-      [verseId, source, content]
+    // [FIX] Sebelumnya pakai `ON CONFLICT (verse_id, source) DO UPDATE`,
+    // padahal tidak ada unique constraint pada (verse_id, source) di schema
+    // maupun migration manapun — ON CONFLICT seperti itu akan throw error
+    // Postgres ("no unique or exclusion constraint matching") di setiap
+    // submit. Diganti jadi cek manual lalu insert/update, yang tidak
+    // bergantung pada constraint yang belum tentu ada di database.
+    const existing = await pool.query(
+      'SELECT id FROM tafsir WHERE verse_id = $1 AND source = $2',
+      [verseId, source]
     );
-    
+
+    let result;
+    if (existing.rows.length > 0) {
+      result = await pool.query(
+        'UPDATE tafsir SET content = $1 WHERE id = $2 RETURNING *',
+        [content, existing.rows[0].id]
+      );
+    } else {
+      result = await pool.query(
+        'INSERT INTO tafsir (verse_id, source, content) VALUES ($1, $2, $3) RETURNING *',
+        [verseId, source, content]
+      );
+    }
+
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
     console.error('Error creating tafsir:', error);
@@ -68,12 +95,13 @@ export async function POST(request: Request) {
 
 // DELETE: Hapus tafsir
 export async function DELETE(request: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user?.role !== 'admin') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

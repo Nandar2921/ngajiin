@@ -5,8 +5,8 @@ const oldPool = new Pool({
   host: 'localhost',
   port: 5433,
   user: 'postgres',
-  password: 'Kajiin29',
-  database: 'Kajiin',
+  password: 'sikaji29',
+  database: 'sikaji',
 });
 
 // Database baru (port 5433 - Docker pgvector)
@@ -14,8 +14,8 @@ const newPool = new Pool({
   host: 'localhost',
   port: 5433,
   user: 'postgres',
-  password: 'Kajiin29',
-  database: 'Kajiin',
+  password: 'sikaji29',
+  database: 'sikaji',
 });
 
 async function copyData() {

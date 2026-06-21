@@ -70,7 +70,7 @@ export default function AdminQuranPage() {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-muted">
               <th className="px-4 py-2 border">ID</th>
               <th className="px-4 py-2 border">Surah</th>
               <th className="px-4 py-2 border">Ayat</th>

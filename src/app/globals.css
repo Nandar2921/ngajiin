@@ -2,14 +2,52 @@
 @tailwind components;
 @tailwind utilities;
 
+/* [UI REFRESH] Design tokens berbasis CSS variable, ditambahkan untuk
+   mendukung redesign KAJIIN. Warna dark mode TETAP pakai navy asli project
+   (#1a1a2e / #16213e), bukan slate generic, supaya konsisten dengan apa
+   yang sudah ada di tailwind.config.ts (colors.dark). Rule lama (.card,
+   .input, .font-arabic, mark, animasi, scrollbar-hide) tetap dipertahankan
+   apa adanya supaya halaman yang belum di-redesign tidak rusak. */
 @layer base {
+  :root {
+    --background: #f8fafc;
+    --foreground: #1e293b;
+
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+
+    --border: #e2e8f0;
+
+    --primary: #10b981;
+    --primary-foreground: #ffffff;
+
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+  }
+
+  .dark {
+    --background: #1a1a2e;
+    --foreground: #e2e8f0;
+
+    --card: #16213e;
+    --card-foreground: #f8fafc;
+
+    --border: #2a2f4a;
+
+    --primary: #10b981;
+    --primary-foreground: #ffffff;
+
+    --muted: #232844;
+    --muted-foreground: #94a3b8;
+  }
+
   /* Dark mode otomatis ke semua elemen */
   html.dark {
     color-scheme: dark;
   }
 
   body {
-    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+    @apply bg-background text-foreground;
   }
 }
 
@@ -26,17 +64,10 @@
     @apply bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 
            text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-emerald-500;
   }
-  
+
   .font-arabic {
-    font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', serif;
+    font-family: var(--font-arabic), 'Amiri', 'Scheherazade New', 'Traditional Arabic', serif;
   }
-}
-
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-.font-arabic {
-  font-family: 'Amiri', 'Traditional Arabic', 'Times New Roman', serif;
 }
 
 /* Animations */

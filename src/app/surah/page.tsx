@@ -160,14 +160,14 @@ export default function SurahListPage() {
   if (loading) return <SkeletonSurah />;
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-6xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-emerald-500 mb-2">
             📖 Al-Qur'an
           </h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             {surahList.length} surah • {totalAyat.toLocaleString()} ayat
           </p>
         </div>
@@ -175,13 +175,13 @@ export default function SurahListPage() {
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Cari surah... (contoh: Al-Fatihah, Yasin, 36)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white placeholder:text-gray-600"
+              className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl focus:outline-none focus:border-emerald-500 text-foreground placeholder:text-muted-foreground/60"
             />
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function SurahListPage() {
               <Link
                 key={surah.surah}
                 href={`/surah/${surah.surah}`}
-                className="group block bg-gray-900/30 border border-white/5 rounded-xl p-4 hover:bg-gray-900/50 hover:border-emerald-500/30 transition-all duration-200"
+                className="group block bg-card/60 border border-border/60 rounded-xl p-4 hover:bg-card hover:border-emerald-500/30 transition-all duration-200"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -207,12 +207,12 @@ export default function SurahListPage() {
                     
                     {/* Nama Surah */}
                     <div>
-                      <div className="font-semibold text-white group-hover:text-emerald-400 transition">
+                      <div className="font-semibold text-foreground group-hover:text-emerald-400 transition">
                         {surah.surah}. {surahName?.latin || `Surah ${surah.surah}`}
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-500">{ayatCount} ayat</span>
-                        <span className="text-xs text-gray-600">•</span>
+                        <span className="text-xs text-muted-foreground">{ayatCount} ayat</span>
+                        <span className="text-xs text-muted-foreground/60">•</span>
                         <span className="text-xs text-emerald-500 font-arabic">
                           {surahName?.arabic || '۞'}
                         </span>
@@ -235,7 +235,7 @@ export default function SurahListPage() {
         {/* Empty State */}
         {filteredSurah.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">Tidak ditemukan surah dengan kata kunci "{searchTerm}"</p>
+            <p className="text-muted-foreground">Tidak ditemukan surah dengan kata kunci "{searchTerm}"</p>
           </div>
         )}
       </div>

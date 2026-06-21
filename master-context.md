@@ -1,4 +1,4 @@
-# Kajiin PROJECT MASTER CONTEXT
+# NGAJIIN PROJECT MASTER CONTEXT
 
 Saya adalah founder proyek ini.
 
@@ -8,7 +8,7 @@ Saya ingin Anda menjadi Senior Software Engineer, System Architect, UI/UX Design
 
 PROJECT NAME
 
-Kajiin
+NGAJIIN
 
 Tagline Indonesia:
 
@@ -25,9 +25,9 @@ Built for the World.
 
 FILOSOFI
 
-Kajiin berasal dari budaya Indonesia yaitu "ngaji", yang berarti belajar dan mencari ilmu agama.
+Ngajiin berasal dari budaya Indonesia yaitu "ngaji", yang berarti belajar dan mencari ilmu agama.
 
-Namun Kajiin bukan hanya aplikasi lokal.
+Namun Ngajiin bukan hanya aplikasi lokal.
 
 Visi jangka panjang adalah menjadi platform pencarian dan pembelajaran Islam digital yang dapat digunakan oleh komunitas Muslim di seluruh dunia.
 
@@ -412,13 +412,13 @@ LAKUKAN:
 
 PROJECT POSITIONING
 
-Kajiin
+NGAJIIN
 
 Cari. Kaji. Pahami.
 
 Discover Islamic Knowledge.
 
-Kajiin adalah platform pencarian dan pembelajaran Islam modern yang menghubungkan Al-Quran, Hadits, Tafsir, Doa, dan referensi Islam terpercaya dalam satu tempat.
+Ngajiin adalah platform pencarian dan pembelajaran Islam modern yang menghubungkan Al-Quran, Hadits, Tafsir, Doa, dan referensi Islam terpercaya dalam satu tempat.
 
 Born in Indonesia.
 Built for the World.

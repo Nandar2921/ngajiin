@@ -51,12 +51,15 @@ export default function AdminHadithPage() {
   const fetchData = async () => {
     try {
       const [hadithRes, booksRes] = await Promise.all([
-        fetch('/api/hadith'),
+        fetch('/api/hadith?limit=1000'),
         fetch('/api/hadith/books')
       ]);
       const hadithData = await hadithRes.json();
       const booksData = await booksRes.json();
-      setHadiths(Array.isArray(hadithData) ? hadithData : []);
+      // [FIX] /api/hadith mengembalikan { data, pagination }, bukan array
+      // langsung — sebelumnya ini selalu menghasilkan daftar kosong di admin
+      // karena Array.isArray({ data, pagination }) === false.
+      setHadiths(Array.isArray(hadithData?.data) ? hadithData.data : []);
       setBooks(Array.isArray(booksData) ? booksData : []);
     } catch (error) {
       console.error('Error:', error);

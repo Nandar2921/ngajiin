@@ -6,11 +6,11 @@ const pool = new Pool({
   host: 'localhost',
   port: 5433,  // ← pakai port Docker
   user: 'postgres',
-  password: 'Kajiin29',
-  database: 'Kajiin',
+  password: 'sikaji29',
+  database: 'sikaji',
 });
 
-const SURAH_DIR = 'D:/Kajiin/quran-json/surah';
+const SURAH_DIR = 'D:/sikaji/quran-json/surah';
 
 async function importData() {
   console.log('🚀 Mulai import data ke database pgvector (port 5433)...\n');

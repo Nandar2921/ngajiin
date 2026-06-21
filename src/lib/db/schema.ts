@@ -7,6 +7,12 @@ export const users = pgTable('users', {
   password: text('password').notNull(),
   role: varchar('role', { length: 20 }).notNull().default('user'),
   createdAt: timestamp('created_at').defaultNow(),
+  // [FITUR BARU] Progress baca Qur'an — posisi terakhir dibaca per user.
+  // Disimpan sebagai kolom di users (relasi 1:1), bukan tabel terpisah,
+  // karena cukup satu posisi terakhir per user, bukan riwayat per-ayat.
+  lastReadSurah: integer('last_read_surah'),
+  lastReadAyah: integer('last_read_ayah'),
+  lastReadAt: timestamp('last_read_at'),
 });
 
 export const searchHistory = pgTable('search_history', {

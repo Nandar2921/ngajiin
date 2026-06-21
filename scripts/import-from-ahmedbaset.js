@@ -8,7 +8,7 @@ const pool = new Pool({
     rejectUnauthorized: false, // Required for Neon
   },
 });
-// Mapping bookId dari dataset ke database Kajiin (sesuai dengan struktur `hadith_books`)
+// Mapping bookId dari dataset ke database SiKAJI (sesuai dengan struktur `hadith_books`)
 const BOOK_MAPPING = {
   'bukhari': { name: 'Sahih Bukhari', slug: 'bukhari', nameArabic: 'صحيح البخاري', nameIndonesian: 'Shahih Bukhari' },
   'muslim': { name: 'Sahih Muslim', slug: 'muslim', nameArabic: 'صحيح مسلم', nameIndonesian: 'Shahih Muslim' },

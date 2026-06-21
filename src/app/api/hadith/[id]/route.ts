@@ -49,10 +49,29 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // [FIX] Sebelumnya hanya `h.*` — tidak pernah JOIN ke hadith_translations
+    // atau hadith_gradings, jadi terjemahan & status hadits tidak pernah
+    // tampil di halaman detail meski tidak error. Sekarang di-JOIN LATERAL.
     const result = await pool.query(`
-      SELECT h.*, b.name_indonesian as book_name 
+      SELECT 
+        h.*,
+        b.name_indonesian as book_name,
+        COALESCE(ht.text, '') as translation,
+        ht.translator,
+        COALESCE(hg.grade, '') as grade,
+        COALESCE(hg.reference, '') as reference
       FROM hadiths h
       JOIN hadith_books b ON h.book_id = b.id
+      LEFT JOIN LATERAL (
+        SELECT text, translator FROM hadith_translations
+        WHERE hadith_id = h.id AND language = 'id'
+        ORDER BY id ASC LIMIT 1
+      ) ht ON true
+      LEFT JOIN LATERAL (
+        SELECT grade, reference FROM hadith_gradings
+        WHERE hadith_id = h.id
+        ORDER BY id ASC LIMIT 1
+      ) hg ON true
       WHERE h.id = $1
     `, [params.id]);
     

@@ -296,7 +296,7 @@ export const translations: Record<Language, Translation> = {
     // Home
     'home.heroEyebrow': 'Pencari Referensi Islam',
     'home.heroTitle': 'Tanya apa saja,\ntemukan jawabannya\ndari Al-Qur\'an & Hadits',
-    'home.heroSubtitle': 'Ketik pertanyaan atau topik bebas — Kajiin otomatis membaca database dan mencarikan ayat, hadits, serta tafsir yang paling relevan.',
+    'home.heroSubtitle': 'Ketik pertanyaan atau topik bebas — KAJIIN otomatis membaca database dan mencarikan ayat, hadits, serta tafsir yang paling relevan.',
     'home.howItWorks': 'Cara Kerja',
     'home.howItWorksTitle': 'Cukup ketik, sisanya biar sistem',
     'home.howItWorksDesc': 'Tidak perlu tahu nomor surah atau bab hadits',
@@ -412,7 +412,7 @@ export const translations: Record<Language, Translation> = {
     'auth.nameRequired': 'Nama wajib diisi',
 
     // Footer
-    'footer.copyright': 'Hak Cipta © 2026 Kajiin. All rights reserved.',
+    'footer.copyright': 'Hak Cipta © 2026 KAJIIN. All rights reserved.',
     'footer.privacy': 'Kebijakan Privasi',
     'footer.terms': 'Syarat & Ketentuan',
     'footer.contact': 'Kontak',
@@ -503,7 +503,7 @@ export const translations: Record<Language, Translation> = {
     // Home
     'home.heroEyebrow': 'Islamic Reference Finder',
     'home.heroTitle': 'Ask anything,\nfind the answer\nfrom Al-Quran & Hadith',
-    'home.heroSubtitle': 'Type your question or topic — Kajiin automatically searches the database and finds the most relevant verses, hadiths, and tafsir.',
+    'home.heroSubtitle': 'Type your question or topic — KAJIIN automatically searches the database and finds the most relevant verses, hadiths, and tafsir.',
     'home.howItWorks': 'How It Works',
     'home.howItWorksTitle': 'Just type, the system does the rest',
     'home.howItWorksDesc': 'No need to know surah numbers or hadith chapters',
@@ -619,7 +619,7 @@ export const translations: Record<Language, Translation> = {
     'auth.nameRequired': 'Name is required',
 
     // Footer
-    'footer.copyright': 'Copyright © 2026 Kajiin. All rights reserved.',
+    'footer.copyright': 'Copyright © 2026 KAJIIN. All rights reserved.',
     'footer.privacy': 'Privacy Policy',
     'footer.terms': 'Terms & Conditions',
     'footer.contact': 'Contact',
@@ -710,7 +710,7 @@ export const translations: Record<Language, Translation> = {
     // Home
     'home.heroEyebrow': 'محرك البحث الإسلامي',
     'home.heroTitle': 'اسأل أي شيء،\nابحث عن الإجابة\nمن القرآن والحديث',
-    'home.heroSubtitle': 'اكتب سؤالك أو موضوعك — Kajiin يبحث تلقائياً في قاعدة البيانات ويجد الآيات والأحاديث والتفسيرات الأكثر صلة.',
+    'home.heroSubtitle': 'اكتب سؤالك أو موضوعك — KAJIIN يبحث تلقائياً في قاعدة البيانات ويجد الآيات والأحاديث والتفسيرات الأكثر صلة.',
     'home.howItWorks': 'كيف يعمل',
     'home.howItWorksTitle': 'ما عليك سوى الكتابة، والنظام يفعل الباقي',
     'home.howItWorksDesc': 'لا حاجة لمعرفة أرقام السور أو أبواب الحديث',
@@ -826,7 +826,7 @@ export const translations: Record<Language, Translation> = {
     'auth.nameRequired': 'الاسم مطلوب',
 
     // Footer
-    'footer.copyright': 'جميع الحقوق محفوظة © 2026 Kajiin',
+    'footer.copyright': 'جميع الحقوق محفوظة © 2026 KAJIIN',
     'footer.privacy': 'سياسة الخصوصية',
     'footer.terms': 'الشروط والأحكام',
     'footer.contact': 'اتصل بنا',

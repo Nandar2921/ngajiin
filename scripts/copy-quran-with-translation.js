@@ -1,15 +1,16 @@
+require('dotenv').config();
 ﻿const { Pool } = require('pg');
 
 const localPool = new Pool({
   host: 'localhost',
   user: 'postgres',
-  password: 'Kajiin29',
-  database: 'Kajiin',
+  password: 'sikaji29',
+  database: 'sikaji',
   port: 5432,
 });
 
 const neonPool = new Pool({
-  connectionString: 'postgresql://neondb_owner:npg_e9NYUfAwI2Jb@ep-purple-waterfall-ao5g02js-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false,
   },

@@ -258,7 +258,7 @@ export default function AdminTafsirPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
       </div>
     );
@@ -266,11 +266,11 @@ export default function AdminTafsirPage() {
 
   if (session?.user?.role !== 'admin') {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">⛔</div>
           <h1 className="text-2xl font-bold text-red-500 mb-2">Access Denied</h1>
-          <p className="text-gray-400">Halaman ini hanya untuk administrator.</p>
+          <p className="text-muted-foreground">Halaman ini hanya untuk administrator.</p>
           <Link href="/" className="mt-4 inline-block text-emerald-500 hover:text-emerald-400">
             ← Kembali ke Beranda
           </Link>
@@ -288,15 +288,15 @@ export default function AdminTafsirPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold text-emerald-500">📚 Manajemen Tafsir</h1>
-            <p className="text-gray-500 mt-1">Total: {tafsirList.length} tafsir</p>
+            <p className="text-muted-foreground mt-1">Total: {tafsirList.length} tafsir</p>
           </div>
-          <Link href="/admin" className="text-gray-400 hover:text-white transition">
+          <Link href="/admin" className="text-muted-foreground hover:text-foreground transition">
             ← Back to Dashboard
           </Link>
         </div>
@@ -315,28 +315,28 @@ export default function AdminTafsirPage() {
         )}
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 border-b border-white/10 mb-6 flex-wrap">
+        <div className="flex gap-2 border-b border-border mb-6 flex-wrap">
           <button
             onClick={() => { setActiveTab('list'); cancelEdit(); }}
-            className={`px-4 py-2 transition ${activeTab === 'list' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-4 py-2 transition ${activeTab === 'list' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-muted-foreground hover:text-foreground/80'}`}
           >
             📋 Daftar Tafsir ({tafsirList.length})
           </button>
           <button
             onClick={() => { setActiveTab('add'); setEditingId(null); }}
-            className={`px-4 py-2 transition ${activeTab === 'add' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-4 py-2 transition ${activeTab === 'add' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-muted-foreground hover:text-foreground/80'}`}
           >
             {editingId ? '✏️ Edit Tafsir' : '➕ Tambah Tafsir'}
           </button>
           <button
             onClick={() => setActiveTab('import')}
-            className={`px-4 py-2 transition ${activeTab === 'import' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-4 py-2 transition ${activeTab === 'import' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-muted-foreground hover:text-foreground/80'}`}
           >
             📤 Import JSON
           </button>
           <button
             onClick={() => setActiveTab('sources')}
-            className={`px-4 py-2 transition ${activeTab === 'sources' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-4 py-2 transition ${activeTab === 'sources' ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-muted-foreground hover:text-foreground/80'}`}
           >
             📖 Sumber Tafsir
           </button>
@@ -347,7 +347,7 @@ export default function AdminTafsirPage() {
           <div>
             {/* Search */}
             <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Cari tafsir (surah, sumber, isi)..."
@@ -356,25 +356,25 @@ export default function AdminTafsirPage() {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full px-4 py-2 pl-10 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+                className="w-full px-4 py-2 pl-10 bg-muted border border-border rounded-lg focus:outline-none focus:border-emerald-500 text-foreground"
               />
             </div>
 
             {/* Table */}
-            <div className="overflow-x-auto bg-gray-900/30 border border-white/10 rounded-xl">
+            <div className="overflow-x-auto bg-card border border-border rounded-xl">
               <table className="w-full">
-                <thead className="bg-gray-800/50 border-b border-white/10">
+                <thead className="bg-muted border-b border-border">
                   <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">ID</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">QS</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Sumber</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Tafsir</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Aksi</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">ID</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">QS</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Sumber</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Tafsir</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedTafsir.map((tafsir) => (
-                    <tr key={tafsir.id} className="border-b border-white/5 hover:bg-white/5">
+                    <tr key={tafsir.id} className="border-b border-border/60 hover:bg-white/5">
                       <td className="px-4 py-3 text-sm">{tafsir.id}</td>
                       <td className="px-4 py-3 text-sm font-mono text-emerald-400">
                         {tafsir.surah}:{tafsir.ayah}
@@ -384,7 +384,7 @@ export default function AdminTafsirPage() {
                           {tafsir.source}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-400 max-w-md truncate">
+                      <td className="px-4 py-3 text-sm text-muted-foreground max-w-md truncate">
                         {tafsir.content.substring(0, 100)}...
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
@@ -415,17 +415,17 @@ export default function AdminTafsirPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 transition"
+                  className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 transition"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-muted-foreground">
                   Halaman {currentPage} dari {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 disabled:opacity-50 transition"
+                  className="p-2 rounded-lg bg-muted hover:bg-muted/70 disabled:opacity-50 transition"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -433,7 +433,7 @@ export default function AdminTafsirPage() {
             )}
 
             {tafsirList.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
+              <div className="text-center py-12 text-muted-foreground">
                 Belum ada data tafsir. Import JSON untuk menambahkan.
               </div>
             )}
@@ -450,12 +450,12 @@ export default function AdminTafsirPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Pilih Ayat</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Pilih Ayat</label>
               <select
                 value={formData.verseId}
                 onChange={(e) => setFormData({ ...formData, verseId: e.target.value })}
                 required
-                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+                className="w-full p-2 bg-muted border border-border rounded-lg focus:outline-none focus:border-emerald-500 text-foreground"
               >
                 <option value="">Pilih Ayat</option>
                 {verses.map((verse) => (
@@ -467,11 +467,11 @@ export default function AdminTafsirPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Sumber Tafsir</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Sumber Tafsir</label>
               <select
                 value={formData.source}
                 onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white"
+                className="w-full p-2 bg-muted border border-border rounded-lg focus:outline-none focus:border-emerald-500 text-foreground"
               >
                 <option value="Ibnu Katsir">Ibnu Katsir</option>
                 <option value="Kemenag">Tafsir Kemenag</option>
@@ -482,13 +482,13 @@ export default function AdminTafsirPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Isi Tafsir</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Isi Tafsir</label>
               <textarea
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 required
                 rows={8}
-                className="w-full p-2 bg-gray-800/50 border border-white/10 rounded-lg focus:outline-none focus:border-emerald-500 text-white font-mono text-sm"
+                className="w-full p-2 bg-muted border border-border rounded-lg focus:outline-none focus:border-emerald-500 text-foreground font-mono text-sm"
               />
             </div>
 
@@ -504,7 +504,7 @@ export default function AdminTafsirPage() {
                 <button
                   type="button"
                   onClick={cancelEdit}
-                  className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition"
+                  className="bg-muted hover:bg-muted/70 text-foreground px-6 py-2 rounded-lg transition"
                 >
                   Batal
                 </button>
@@ -528,8 +528,8 @@ export default function AdminTafsirPage() {
                   : 'border-gray-600 hover:border-emerald-500/50'
               }`}
             >
-              <Upload className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-              <p className="text-gray-400 mb-2">
+              <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-2">
                 Drag & drop file JSON di sini, atau klik untuk memilih file
               </p>
               <input
@@ -545,7 +545,7 @@ export default function AdminTafsirPage() {
               >
                 Pilih File JSON
               </label>
-             <p className="text-xs text-gray-600 mt-3">
+             <p className="text-xs text-muted-foreground/60 mt-3">
   Format JSON: {'[{"surah": 1, "ayah": 1, "content": "tafsir..."}, ...]'}
 </p>
             </div>
@@ -554,7 +554,7 @@ export default function AdminTafsirPage() {
             {importing && (
               <div className="mt-4 text-center">
                 <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
-                <p className="text-gray-400">Mengimpor tafsir...</p>
+                <p className="text-muted-foreground">Mengimpor tafsir...</p>
               </div>
             )}
 
@@ -572,7 +572,7 @@ export default function AdminTafsirPage() {
                     <p>⚠️ Gagal: {importResult.failed} tafsir</p>
                     {importResult.errors.length > 0 && (
                       <details className="mt-2">
-                        <summary className="text-sm cursor-pointer text-gray-400">Lihat detail error</summary>
+                        <summary className="text-sm cursor-pointer text-muted-foreground">Lihat detail error</summary>
                         <ul className="mt-2 text-xs text-red-400 space-y-1">
                           {importResult.errors.slice(0, 5).map((err, i) => (
                             <li key={i}>• {err}</li>
@@ -590,24 +590,24 @@ export default function AdminTafsirPage() {
         {/* Tab Sumber Tafsir */}
         {activeTab === 'sources' && (
           <div>
-            <div className="bg-gray-900/30 border border-white/10 rounded-xl p-6">
+            <div className="bg-card border border-border rounded-xl p-6">
               <h3 className="font-semibold text-emerald-500 mb-4 flex items-center gap-2">
                 <BookOpen className="w-5 h-5" /> Sumber Tafsir
               </h3>
               <div className="space-y-3">
                 {sourcesList.map((source, idx) => (
-                  <div key={idx} className="flex items-center justify-between py-2 border-b border-white/5">
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-border/60">
                     <div className="flex items-center gap-3">
-                      <span className={`w-2 h-2 rounded-full ${source.available ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
+                      <span className={`w-2 h-2 rounded-full ${source.available ? 'bg-emerald-500' : 'bg-muted-foreground/40'}`}></span>
                       <span className="font-medium">{source.name}</span>
                       {source.available && (
-                        <span className="text-xs text-gray-500">({source.count} tafsir)</span>
+                        <span className="text-xs text-muted-foreground">({source.count} tafsir)</span>
                       )}
                     </div>
                     {source.available ? (
                       <span className="text-xs text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Tersedia</span>
                     ) : (
-                      <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">Belum tersedia</span>
+                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">Belum tersedia</span>
                     )}
                   </div>
                 ))}

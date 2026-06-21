@@ -187,7 +187,7 @@ export default function EditVersePage() {
           </button>
           <Link
             href="/admin/quran"
-            className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+            className="bg-muted text-foreground px-4 py-2 rounded-md hover:bg-muted/70"
           >
             Batal
           </Link>

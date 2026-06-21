@@ -51,14 +51,14 @@ interface UnifiedSearchResponse {
 const SearchSkeleton = () => (
   <div className="space-y-4">
     {[1, 2, 3].map((i) => (
-      <div key={i} className="p-5 border border-white/10 rounded-xl animate-pulse">
+      <div key={i} className="p-5 border border-border rounded-xl animate-pulse">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-5 h-5 bg-gray-800 rounded"></div>
-          <div className="w-20 h-4 bg-gray-800 rounded"></div>
-          <div className="w-32 h-3 bg-gray-800 rounded"></div>
+          <div className="w-5 h-5 bg-muted rounded"></div>
+          <div className="w-20 h-4 bg-muted rounded"></div>
+          <div className="w-32 h-3 bg-muted rounded"></div>
         </div>
-        <div className="w-full h-4 bg-gray-800 rounded mb-2"></div>
-        <div className="w-3/4 h-4 bg-gray-800 rounded"></div>
+        <div className="w-full h-4 bg-muted rounded mb-2"></div>
+        <div className="w-3/4 h-4 bg-muted rounded"></div>
       </div>
     ))}
   </div>
@@ -67,9 +67,9 @@ const SearchSkeleton = () => (
 const EmptyState = ({ query, t }: { query: string; t: any }) => (
   <div className="text-center py-16">
     <div className="text-6xl mb-4">🔍</div>
-    <h3 className="text-xl font-semibold text-white mb-2">{t('search.noResults')}</h3>
-    <p className="text-gray-500">{t('search.searchFor')} "{query}"</p>
-    <p className="text-sm text-gray-600 mt-2">{t('search.tryAgain')}</p>
+    <h3 className="text-xl font-semibold text-foreground mb-2">{t('search.noResults')}</h3>
+    <p className="text-muted-foreground">{t('search.searchFor')} "{query}"</p>
+    <p className="text-sm text-muted-foreground/60 mt-2">{t('search.tryAgain')}</p>
   </div>
 );
 
@@ -79,15 +79,15 @@ const RecentSearches = ({ searches, onSelect, t }: { searches: string[]; onSelec
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-gray-500" />
-        <span className="text-sm font-medium text-gray-400">{t('search.recent')}</span>
+        <Clock className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm font-medium text-muted-foreground">{t('search.recent')}</span>
       </div>
       <div className="flex flex-wrap gap-2">
         {searches.map((item, idx) => (
           <button
             key={idx}
             onClick={() => onSelect(item)}
-            className="px-3 py-1.5 bg-gray-800/50 rounded-full text-sm text-gray-300 hover:bg-gray-800 transition"
+            className="px-3 py-1.5 bg-card rounded-full text-sm text-foreground/80 hover:bg-muted transition"
           >
             {item}
           </button>
@@ -232,20 +232,20 @@ export default function SearchContent() {
       case 'quran': return 'border-emerald-500/30 hover:border-emerald-500/60 bg-emerald-950/20';
       case 'hadith': return 'border-blue-500/30 hover:border-blue-500/60 bg-blue-950/20';
       case 'tafsir': return 'border-purple-500/30 hover:border-purple-500/60 bg-purple-950/20';
-      default: return 'border-gray-500/30 hover:border-gray-500/60 bg-gray-950/20';
+      default: return 'border-border hover:border-border/80 bg-muted/40';
     }
   };
 
   if (!q || q.length < 2) {
     return (
-      <div className="min-h-screen bg-[#0b1120]">
+      <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto px-4 py-16">
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-2xl mb-4">
               <Search className="w-10 h-10 text-emerald-500" />
             </div>
-            <h1 className="text-4xl font-bold text-white mb-4">{t('search.title')}</h1>
-            <p className="text-gray-500">{t('search.subtitle')}</p>
+            <h1 className="text-4xl font-bold text-foreground mb-4">{t('search.title')}</h1>
+            <p className="text-muted-foreground">{t('search.subtitle')}</p>
           </div>
           
           <form onSubmit={handleSearch} className="max-w-2xl mx-auto">
@@ -256,7 +256,7 @@ export default function SearchContent() {
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder={t('search.placeholder')}
-                className="w-full px-6 py-4 pr-24 text-lg border border-gray-800 rounded-2xl bg-gray-900/50 text-white focus:border-emerald-500 focus:outline-none transition"
+                className="w-full px-6 py-4 pr-24 text-lg border border-border rounded-2xl bg-card text-foreground focus:border-emerald-500 focus:outline-none transition"
                 autoFocus
               />
               <button
@@ -272,15 +272,15 @@ export default function SearchContent() {
 
           <div className="mt-8 max-w-2xl mx-auto">
             <div className="flex items-center gap-2 mb-3">
-              <TrendingUp className="w-4 h-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-400">{t('search.popular')}</span>
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">{t('search.popular')}</span>
             </div>
             <div className="flex flex-wrap gap-2">
               {['niat', 'qurban', 'riba', 'shalat', 'puasa', 'zakat', 'haji', 'sabar', 'syukur', 'tawakkal'].map((topic) => (
                 <button
                   key={topic}
                   onClick={() => handleRecentSelect(topic)}
-                  className="px-3 py-1.5 bg-gray-800/50 rounded-full text-sm text-gray-300 hover:bg-gray-800 transition"
+                  className="px-3 py-1.5 bg-card rounded-full text-sm text-foreground/80 hover:bg-muted transition"
                 >
                   {topic}
                 </button>
@@ -296,7 +296,7 @@ export default function SearchContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <p className="text-red-400 mb-4">{t('search.error')}: {error}</p>
@@ -322,7 +322,7 @@ export default function SearchContent() {
     : results.filter(r => r.type === activeTab);
 
   return (
-    <div className="min-h-screen bg-[#0b1120]">
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto px-4 py-6">
         <div className="mb-6">
           <Link href="/" className="text-emerald-500 hover:text-emerald-400 text-sm inline-flex items-center gap-1 mb-4 transition">
@@ -334,7 +334,7 @@ export default function SearchContent() {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full px-5 py-3 pr-24 text-base border border-gray-800 rounded-xl bg-gray-900/50 text-white focus:border-emerald-500 focus:outline-none transition"
+              className="w-full px-5 py-3 pr-24 text-base border border-border rounded-xl bg-card text-foreground focus:border-emerald-500 focus:outline-none transition"
             />
             <button
               type="submit"
@@ -346,10 +346,10 @@ export default function SearchContent() {
           
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-xl font-bold text-white">
+              <h1 className="text-xl font-bold text-foreground">
                 {t('search.resultsFor')}: <span className="text-emerald-500">"{q}"</span>
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 {t('search.found')} {unifiedData.total} {t('search.results')}
               </p>
             </div>
@@ -358,14 +358,14 @@ export default function SearchContent() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'relevance' | 'latest')}
-                className="px-3 py-1.5 text-sm border border-gray-800 rounded-lg bg-gray-900 text-gray-300 focus:border-emerald-500 focus:outline-none"
+                className="px-3 py-1.5 text-sm border border-border rounded-lg bg-card text-foreground/80 focus:border-emerald-500 focus:outline-none"
               >
                 <option value="relevance">{t('search.sortRelevance')}</option>
                 <option value="latest">{t('search.sortLatest')}</option>
               </select>
               <button
                 onClick={() => setShowFilters(!showFilters)}
-                className={`p-2 rounded-lg border transition ${showFilters ? 'bg-emerald-600 text-white border-emerald-600' : 'border-gray-800 hover:bg-gray-800'}`}
+                className={`p-2 rounded-lg border transition ${showFilters ? 'bg-emerald-600 text-white border-emerald-600' : 'border-border hover:bg-muted'}`}
               >
                 <Filter className="w-4 h-4" />
               </button>
@@ -373,24 +373,24 @@ export default function SearchContent() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 p-2 bg-gray-900/50 rounded-xl border border-gray-800">
+        <div className="flex items-center justify-between mb-4 p-2 bg-card rounded-xl border border-border">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-purple-500" />
-            <span className="text-sm font-medium text-gray-400">{t('search.mode')}:</span>
+            <span className="text-sm font-medium text-muted-foreground">{t('search.mode')}:</span>
             <button
               onClick={() => setUseSemantic(false)}
-              className={`px-3 py-1 text-sm rounded-full transition ${!useSemantic ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`px-3 py-1 text-sm rounded-full transition ${!useSemantic ? 'bg-emerald-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'}`}
             >
               📖 {t('search.modeExact')}
             </button>
             <button
               onClick={() => setUseSemantic(true)}
-              className={`px-3 py-1 text-sm rounded-full transition ${useSemantic ? 'bg-emerald-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'}`}
+              className={`px-3 py-1 text-sm rounded-full transition ${useSemantic ? 'bg-emerald-600 text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'}`}
             >
               🧠 {t('search.modeSemantic')}
             </button>
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             {useSemantic ? t('search.modeSemanticDesc') : t('search.modeExactDesc')}
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function SearchContent() {
           </div>
         )}
 
-        <div className="flex gap-1 border-b border-gray-800 mb-6 overflow-x-auto">
+        <div className="flex gap-1 border-b border-border mb-6 overflow-x-auto">
           {[
             { key: 'all', label: t('search.all'), count: unifiedData.total, icon: '📋' },
             { key: 'quran', label: t('search.quran'), count: unifiedData.counts.quran, icon: '📖' },
@@ -413,7 +413,7 @@ export default function SearchContent() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 text-sm font-medium transition whitespace-nowrap ${activeTab === tab.key ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`px-4 py-2 text-sm font-medium transition whitespace-nowrap ${activeTab === tab.key ? 'border-b-2 border-emerald-500 text-emerald-500' : 'text-muted-foreground hover:text-foreground/80'}`}
             >
               {tab.icon} {tab.label} ({tab.count})
             </button>
@@ -433,12 +433,12 @@ export default function SearchContent() {
             return (
               <div key={idx} className="group relative">
                 <Link href={href}>
-                  <div className={`p-5 border-l-4 rounded-xl transition-all hover:shadow-lg bg-gray-900/30 border ${getTypeColor(result.type)}`}>
+                  <div className={`p-5 border-l-4 rounded-xl transition-all hover:shadow-lg bg-card/70 border ${getTypeColor(result.type)}`}>
                     <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                       <div className="flex items-center gap-2">
                         {getTypeIcon(result.type)}
-                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{result.category}</span>
-                        <span className="text-xs text-gray-600">{result.reference}</span>
+                        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground">{result.category}</span>
+                        <span className="text-xs text-muted-foreground/60">{result.reference}</span>
                       </div>
                       {similarity && (
                         <span className="text-xs text-emerald-500 bg-emerald-950/50 px-2 py-0.5 rounded-full">
@@ -448,17 +448,17 @@ export default function SearchContent() {
                     </div>
                     
                     {result.arabic && (
-                      <div className="text-right text-base font-arabic mb-2 text-gray-400">
+                      <div className="text-right text-base font-arabic mb-2 text-muted-foreground">
                         {result.arabic.length > 120 ? result.arabic.substring(0, 120) + '...' : result.arabic}
                       </div>
                     )}
                     
-                    <div className="text-gray-300 leading-relaxed text-sm">
+                    <div className="text-foreground/80 leading-relaxed text-sm">
                       {highlightText(displayText, q)}
                     </div>
                     
                     {result.narrator && (
-                      <div className="text-xs text-gray-600 mt-2">{t('hadith.narrator')}: {result.narrator}</div>
+                      <div className="text-xs text-muted-foreground/60 mt-2">{t('hadith.narrator')}: {result.narrator}</div>
                     )}
                     
                     <div className="flex items-center justify-between mt-3">
@@ -466,26 +466,26 @@ export default function SearchContent() {
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                         <button
                           onClick={(e) => { e.preventDefault(); copyToClipboard(displayText, result.id); }}
-                          className="p-1.5 rounded-lg hover:bg-gray-800 transition"
+                          className="p-1.5 rounded-lg hover:bg-muted transition"
                           title={t('common.copy')}
                         >
-                          {copiedId === result.id ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-gray-500" />}
+                          {copiedId === result.id ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
                         </button>
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             if (navigator.share) {
                               navigator.share({
-                                title: `Kajiin - ${result.reference}`,
+                                title: `KAJIIN - ${result.reference}`,
                                 text: displayText.substring(0, 200),
                                 url: window.location.href,
                               });
                             }
                           }}
-                          className="p-1.5 rounded-lg hover:bg-gray-800 transition"
+                          className="p-1.5 rounded-lg hover:bg-muted transition"
                           title={t('common.share')}
                         >
-                          <Share2 className="w-3.5 h-3.5 text-gray-500" />
+                          <Share2 className="w-3.5 h-3.5 text-muted-foreground" />
                         </button>
                       </div>
                     </div>
@@ -497,7 +497,7 @@ export default function SearchContent() {
         </div>
 
         {filteredResults.length === 0 && (
-          <div className="text-center py-10 text-gray-500">
+          <div className="text-center py-10 text-muted-foreground">
             {t('search.noResultsInCategory')} "<span className="font-semibold">{q}</span>"
           </div>
         )}

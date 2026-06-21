@@ -39,34 +39,34 @@ export default function DoaPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b1120] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0b1120] text-gray-200">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-emerald-500 mb-2">
             🤲 Kumpulan Doa Harian
           </h1>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Doa-doa ma'tsur dari Al-Qur'an dan Hadits
           </p>
         </div>
 
         {/* Search */}
         <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Cari doa..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-800/50 border border-white/10 rounded-xl focus:outline-none focus:border-emerald-500 text-white"
+            className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-xl focus:outline-none focus:border-emerald-500 text-foreground"
           />
         </div>
 
@@ -74,22 +74,22 @@ export default function DoaPage() {
         <div className="space-y-4">
           {filteredDoa.map((doa) => (
             <Link key={doa.id} href={`/doa/${doa.id}`}>
-              <div className="bg-gray-800/30 border border-white/10 rounded-xl p-5 hover:bg-gray-800/50 transition cursor-pointer">
+              <div className="bg-card/70 border border-border rounded-xl p-5 hover:bg-card transition cursor-pointer">
                 <div className="flex items-center gap-2 mb-2">
                   <Heart className="w-4 h-4 text-emerald-500" />
-                  <h3 className="font-semibold text-white">{doa.title}</h3>
+                  <h3 className="font-semibold text-foreground">{doa.title}</h3>
                 </div>
                 <div className="text-right text-xl font-arabic text-emerald-400 mb-2">
                   {doa.arabic}
                 </div>
-                <div className="text-sm text-gray-400 italic mb-1">
+                <div className="text-sm text-muted-foreground italic mb-1">
                   {doa.latin}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   {doa.translation}
                 </div>
                 {doa.source && (
-                  <div className="text-xs text-gray-600 mt-2">Sumber: {doa.source}</div>
+                  <div className="text-xs text-muted-foreground/60 mt-2">Sumber: {doa.source}</div>
                 )}
               </div>
             </Link>
@@ -97,7 +97,7 @@ export default function DoaPage() {
         </div>
 
         {filteredDoa.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-muted-foreground">
             Doa tidak ditemukan
           </div>
         )}

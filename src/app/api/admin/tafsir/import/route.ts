@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { Pool } from 'pg';
+import { pool } from '@/lib/pg';
 import { authOptions } from '@/lib/auth.config';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // Required for Neon
-  },
-});
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -54,14 +48,25 @@ export async function POST(request: Request) {
         }
 
         const verseId = verseResult.rows[0].id;
+        const tafsirSource = source || 'Kemenag';
 
-        // Insert tafsir
-        await pool.query(
-          `INSERT INTO tafsir (verse_id, source, content) 
-           VALUES ($1, $2, $3) 
-           ON CONFLICT (verse_id, source) DO UPDATE SET content = EXCLUDED.content`,
-          [verseId, source || 'Kemenag', content]
+        // [FIX] Sebelumnya ON CONFLICT (verse_id, source) padahal tidak ada
+        // unique constraint pada kombinasi itu di database manapun — selalu
+        // error Postgres dan setiap baris tercatat "failed". Diganti cek
+        // manual lalu insert/update.
+        const existing = await pool.query(
+          'SELECT id FROM tafsir WHERE verse_id = $1 AND source = $2',
+          [verseId, tafsirSource]
         );
+
+        if (existing.rows.length > 0) {
+          await pool.query('UPDATE tafsir SET content = $1 WHERE id = $2', [content, existing.rows[0].id]);
+        } else {
+          await pool.query(
+            'INSERT INTO tafsir (verse_id, source, content) VALUES ($1, $2, $3)',
+            [verseId, tafsirSource, content]
+          );
+        }
         
         imported++;
       } catch (error) {
